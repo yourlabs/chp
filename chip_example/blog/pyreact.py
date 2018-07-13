@@ -21,6 +21,10 @@ def render_element(el):
         if p["name"] != "children":
             props_str += (" " + p["name"] + "=\"" + p["value"] + "\"")
 
+    self_closing_tags = ["input", "link", "img"]
+    if name in self_closing_tags:
+        return f"<{name} {props_str} />"
+
     return f"<{name} {props_str}>{child}</{name}>"
 
 def create_element(name, props, children):
