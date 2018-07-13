@@ -68,3 +68,19 @@ render_element(m)
 #+end_src
 
 #+RESULTS:
+
+Pretty printed, this final output is:
+#+begin_src html
+<nav class="menu">
+  <a href="yourlabs.org">
+    <span>YourLabs</span>
+  </a>
+  <a href="novamedia.nyc">
+    <span>NovaMedia</span>
+  </a>
+</nav>
+#+end_src
+
+* TODOS
+- Currently does not support self closing tags.  The render_element method should be updated.
+- Testing of the pyreact.py file
