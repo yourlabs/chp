@@ -1,0 +1,133 @@
+#+begin_src python
+        root_comp = {
+            "name": "h1",
+            "props": [
+                {
+                    "name": "children",
+                    "value": {
+                        "name": "span",
+                        "props": [
+                            {
+                                "name": "class",
+                                "value": "foo",
+                            },
+                            {
+                                "name": "children",
+                                "value": "I am a spanned h1",
+                            },
+                        ]
+                    }
+                },
+            ]
+        }
+
+        # should return <h1><span class="foo">I am a spanned h1</span></h1>
+
+        root_comp_2 = {
+            "name": "h1",
+            "props": [
+                {
+                    "name": "children",
+                    "value": {
+                        "name": "span",
+                        "props": [
+                            {
+                                "name": "children",
+                                "value": {
+                                    "name": "h1",
+                                    "props": [
+                                        {
+                                            "name": "id",
+                                            "value": "yo",
+                                        },
+                                        {
+                                            "name": "children",
+                                            "value": "texting again !!",
+                                        },
+                                    ]
+                                },
+                            },
+                            {
+                                "name": "class",
+                                "value": "foo",
+                            },
+                        ]
+                    }
+                },
+            ]
+        }
+        # <h1 ><span  class="foo"><h1  id="yo">texting again !!</h1></span></h1>
+
+
+      root_comp_2 = {
+          "name": "h1",
+          "props": [
+              {
+                  "name": "children",
+                  "value": [
+                      {
+                          "name": "span",
+                          "props": [
+                              {
+                                  "name": "children",
+                                  "value": [
+                                      {
+                                          "name": "h1",
+                                          "props": [
+                                              {
+                                                  "name": "id",
+                                                  "value": "yo",
+                                              },
+                                              {
+                                                  "name": "children",
+                                                  "value": "texting again !!",
+                                              },
+                                          ]
+                                      },
+                                  ],
+                              },
+                              {
+                                  "name": "class",
+                                  "value": "foo",
+                              },
+                          ]
+                      },
+                      {
+                          "name": "h1",
+                          "props": [
+                              {
+                                  "name": "children",
+                                  "value": "I'm another title !!",
+                              }
+                          ],
+                      }
+                  ],
+              },
+          ]
+      }
+    # return  <h1 ><span  class="foo"><h1  id="yo">texting again !!</h1></span><h1 >I'm another title !!</h1></h1>
+
+
+
+  menu_links = [
+      {
+          "href": "yourlabs.org",
+          "text": "yourlabs love you",
+      },
+      {
+          "href": "novamedia.nyc",
+          "text": "nova media",
+      },
+      {
+          "href": "google.com",
+          "text": "google",
+      },
+      {
+          "href": "twitter.com",
+          "text": "twitter",
+      },
+  ]
+  m = Menu(menu_links)
+
+# output => <nav  class="menu"><a  href="yourlabs.org"><span >yourlabs love you</span></a><a  href="novamedia.nyc"><span >nova media</span></a><a  href="google.com"><span >google</span></a><a  href="twitter.com"><span >twitter</span></a></nav>
+#+end_src

@@ -1,17 +1,19 @@
-def create_element(el):
+def render_element(el):
     props = el["props"]
 
     children = False
-    for x in props:
-        if x["name"] == "children":
-            children = x["value"]
+    for p in props:
+        if p["name"] == "children":
+            children = p["value"]
 
-    if children == False:
+    child = ""
+    if not children:
         child = ""
     elif type(children) is str:
         child = children
     else:
-        child = create_element(children)
+        for c in children:
+            child += render_element(c)
 
     name = el["name"]
     props_str = ""
@@ -21,65 +23,72 @@ def create_element(el):
 
     return f"<{name} {props_str}>{child}</{name}>"
 
-root_comp = {
-    "name": "h1",
-    "props": [
-        {
-            "name": "children",
-            "value": {
-                "name": "span",
-                "props": [
-                    {
-                        "name": "class",
-                        "value": "foo",
-                    },
-                    {
-                        "name": "children",
-                        "value": "I am a spanned h1",
-                    },
-                ]
-            }
-        },
-    ]
-}
+def create_element(name, props, children):
+    props.append({
+        "name": "children",
+        "value": children,
+    })
 
-root_comp_2 = {
-    "name": "h1",
-    "props": [
-        {
-            "name": "children",
-            "value": {
-                "name": "span",
-                "props": [
-                    {
-                        "name": "children",
-                        "value": {
-                            "name": "h1",
-                            "props": [
-                                {
-                                    "name": "id",
-                                    "value": "yo",
-                                },
-                                {
-                                    "name": "children",
-                                    "value": "texting again !!",
-                                },
-                            ]
-                        },
-                    },
-                    {
-                        "name": "class",
-                        "value": "foo",
-                    },
-                ]
-            }
-        },
-    ]
-}
-# should return <h1><span class="foo">I am a spanned h1</span></h1>
+    return {
+        "name": name,
+        "props": props,
+    }
 
-root = create_element(root_comp)
-root2 = create_element(root_comp_2)
+def create_prop(name, value):
+    return {
+        "name": name,
+        "value": value,
+    }
 
-print(root)
-print(root2)
+def get_prop(props=[], name=[]):
+    for p in props:
+        try:
+            if p["name"] == name:
+                return p
+        except KeyError:
+            return None
+
+ce = create_element
+cp = create_prop
+gp = get_prop
+
+def Link(href, children):
+    href = cp("href", href)
+    return ce("a", [href], children)
+
+def Text(t):
+    return ce("span", [], t)
+
+l = Link("google.com", [Text("yooohoo")])
+el = render_element(l)
+print(el)
+
+def Menu(links=[]):
+    c = [] # menu children links array
+    for l in links:
+        el = Link(l["href"], [Text(l["text"])])
+        c.append(el)
+
+    return ce("nav", [cp("class", "menu")], c)
+
+menu_links = [
+    {
+        "href": "yourlabs.org",
+        "text": "yourlabs love you",
+    },
+    {
+        "href": "novamedia.nyc",
+        "text": "nova media",
+    },
+    {
+        "href": "google.com",
+        "text": "google",
+    },
+    {
+        "href": "twitter.com",
+        "text": "twitter",
+    },
+]
+m = Menu(menu_links)
+el = render_element(m)
+print(el)
