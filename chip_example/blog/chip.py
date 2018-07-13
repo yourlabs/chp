@@ -1,7 +1,7 @@
-from pyreact import create_element, create_prop, render_element
+from . import pyreact
 
-ce = create_element
-cp = create_prop
+ce = pyreact.create_element
+cp = pyreact.create_prop
 
 def Div(props, children):
     children = children or []
@@ -55,22 +55,21 @@ def Field(children):
     return Div(props, children)
 
 
-def Input(name):
+def Input(value):
     props = [
         cp('class', 'mdc-input__native-control'),
         cp('type', 'text'),
         cp('id', '{{ id }}'),
-        cp('value', '{{ value }}'),
-        cp('name', name),
+        cp('value', value),
     ]
     return ce('input', props, [])
 
-def Checkbox(name):
+def Checkbox(is_checked):
     props = [
         cp('class', 'mdc-checkbox__native-control'),
         cp('type', 'checkbox'),
         cp('id', '{{ id }}'),
-        cp('name', name),
+        cp('checked', is_checked),
     ]
     return ce('input', props, [])
 
@@ -80,7 +79,7 @@ def Label():
     ]
     return ce('label', props, "{{ label }}")
 
-def CheckboxField(name):
+def CheckboxField(isChecked):
     children = []
     props = [
         cp('class', 'mdc-form-field')
@@ -88,7 +87,7 @@ def CheckboxField(name):
     children.append(Div(
             [cp("class", "mdc-checkbox")],
             [
-                Checkbox(name),
+                Checkbox(isChecked),
                 Div(
                     [cp("class", "mdc-checkbox-background")],
                     []

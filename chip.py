@@ -55,13 +55,12 @@ def Field(children):
     return Div(props, children)
 
 
-def Input(name):
+def Input(value):
     props = [
         cp('class', 'mdc-input__native-control'),
         cp('type', 'text'),
         cp('id', '{{ id }}'),
-        cp('value', '{{ value }}'),
-        cp('name', name),
+        cp('value', value),
     ]
     return ce('input', props, [])
 

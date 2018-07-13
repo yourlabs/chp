@@ -1,30 +1,25 @@
-from phtml.mdc import Grid, Row, Cell
-from phtml.django.mdc import Form, Field
-
 from django import forms
 
 from .models import Post
-import chip
-
+from . import chip
+from . import pyreact
+from django.utils.safestring import mark_safe
 
 class PostForm(forms.ModelForm):
-    _phtml = Grid(Form(
-        Row(
-            Cell(Field('title')),
-        ),
-        Row(
-            Cell(Field('author')),
-            Cell(Field('publish_datetime')),
-        )
-    ))
-
     def render(self):
-        return chip.Form([
+        is_checked = 'checked'
+        is_checked = ''
+        Form = chip.Form([
                 chip.Row([
                     chip.Input('username'),
-                    chip.CheckboxField('password'),
+                    chip.CheckboxField(is_checked),
                 ])
             ])
+
+
+        html = pyreact.render_element(Form)
+
+        return mark_safe(html)
 
     class Meta:
         model = Post
