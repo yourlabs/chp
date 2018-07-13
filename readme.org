@@ -1,0 +1,70 @@
+* Description
+Very basic Python functions to generate HTML in a compasable way.
+
+* Usage
+
+Very much inspired from React.
+
+Let us first define a Text component. We will create a text element without any attributes:
+
+#+begin_src python :session
+from pyreact import create_element, create_prop, render_element
+
+def Text(t):
+    return create_element("span", [], t)
+
+t = Text("YourLabs")
+render_element(t)
+# outputs => "<span >YourLabs</span>"
+#+end_src
+
+#+RESULTS:
+: <span >YourLabs</span>
+
+Let's now use this component to display text inside of a link:
+
+
+#+begin_src python :session
+def Link(href, children):
+    href = create_prop("href", href)
+    return create_element("a", [href], children)
+
+l = Link("yourlabs.org", [Text("YourLabs")])
+render_element(l)
+# outputs => "<a  href="yourlabs.org"><span >YourLabs</span></a>"
+#+end_src
+
+#+RESULTS:
+: <a  href="yourlabs.org"><span >YourLabs</span></a>
+
+Let us now define a Menu component that will create links inside of a nav element based on some input. Let's also rename out create_element and create_prop functions to ce and cp respectively
+
+#+begin_src python :session
+ce = create_element
+cp = create_prop
+
+def Menu(links=[]):
+    c = [] # menu children links array
+    for l in links:
+        el = Link(l["href"], [Text(l["text"])])
+        c.append(el)
+
+    return ce("nav", [cp("class", "menu")], c)
+
+links = [
+    {
+        "href": "yourlabs.org",
+        "text": "YourLabs",
+    },
+    {
+        "href": "novamedia.nyc",
+        "text": "NovaMedia",
+    },
+]
+
+m = Menu(links)
+render_element(m)
+# outputs => <nav  class="menu"><a  href="yourlabs.org"><span >YourLabs</span></a><a  href="novamedia.nyc"><span >NovaMedia</span></a></nav>
+#+end_src
+
+#+RESULTS:
