@@ -69,7 +69,7 @@ def Checkbox(is_checked):
         cp('class', 'mdc-checkbox__native-control'),
         cp('type', 'checkbox'),
         cp('id', '{{ id }}'),
-        cp('checked', is_checked),
+        cp('checked' if is_checked else '', ''),
     ]
     return ce('input', props, [])
 
