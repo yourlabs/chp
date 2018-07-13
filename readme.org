@@ -85,7 +85,8 @@ Pretty printed, this final output is:
 #+begin_src bash
 git clone git@github.com:tbinetruy/CHIP.git
 cd CHIP
-python app.py
+
+python app.py # write html to output.html file
 firefox output.html
 #+end_src
 
