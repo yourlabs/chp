@@ -37,7 +37,7 @@ render_element(l)
 #+RESULTS:
 : <a  href="yourlabs.org"><span >YourLabs</span></a>
 
-Let us now define a Menu component that will create links inside of a nav element based on some input. Let's also rename out create_element and create_prop functions to ce and cp respectively
+Let us now define a Menu component that will create links inside of a nav element based on some input. Let's also rename out `create_element` and `create_prop` functions to `ce` and `cp` respectively
 
 #+begin_src python :session
 ce = create_element
