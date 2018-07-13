@@ -5,6 +5,8 @@ Very basic Python functions to generate HTML in a compasable way.
 
 Very much inspired from React.
 
+A component is any function that returns the result of a ~create_element~ call. This function that the element name,  
+
 Let us first define a Text component. We will create a text element without any attributes:
 
 #+begin_src python :session
