@@ -94,6 +94,42 @@ python app.py # write html to output.html file
 firefox output.html
 #+end_src
 
+* Examples
+#+begin_src python
+import chip
+
+class YourLoginForm(forms.LoginForm):
+    _phtml = chip.Form([
+            chip.Row([
+                chip.Input('username'),
+                chip.CheckboxField('password'),
+            ])
+        ])
+
+#+end_src
+
+~phtml~ becomes a string containing the following html code:
+
+#+begin_src html
+<form  class="mdc-layout-grid__cell">
+  <div  class="mdc-layout-grid__inner">
+    <input  class="mdc-input__native-control" type="text" id="{{ id }}" value="{{ value }}" name="username"></input>
+    <div  class="mdc-form-field">
+      <div  class="mdc-checkbox">
+        <input  class="mdc-checkbox__native-control" type="checkbox" id="{{ id }}" name="password"></input>
+        <div  class="mdc-checkbox-background"></div>
+        <label  for="{{ id }}">{{ label }}</label>
+      </div>
+    </div>
+  </div>
+  <div >
+    {% for error in form.non_field_errors %}
+        {{ error }}
+    {% endfor %}
+  </div>
+</form>
+#+end_src
+
 * TODOS
 - Currently does not support self closing tags.  The render_element method should be updated.
 - Testing of the pyreact.py file. Some of the high level results were copy pasted into tests.org

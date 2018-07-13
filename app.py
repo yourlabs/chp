@@ -29,7 +29,6 @@ form = {
 
 a = App(form)
 html = render_element(a)
-print(html)
 
 re = render_element
 
@@ -41,7 +40,6 @@ foo = chip.Form([
     ])
 
 fooo = re(foo)
-
 print(fooo)
 
 # Write output to html file
