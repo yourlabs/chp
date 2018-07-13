@@ -42,7 +42,7 @@ def Post(author, content, isError, errorCb):
 def Body(posts=[], links=[], is_error=False):
     c = [Menu(links)] # body children
 
-    error_messages =[]
+    error_messages = []
     def getError(str):
         if not is_error:
             error_messages.append(str)
