@@ -6,6 +6,7 @@ cp = create_prop
 def Text(t):
     return ce("span", [], t)
 
+
 def Error(str=""):
     style=cp("style", "color: red")
     return ce("span", [style], str)

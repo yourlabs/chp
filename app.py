@@ -2,6 +2,7 @@
 
 from pyreact import create_element, create_prop, get_prop, render_element
 from Form import App
+import chip
 
 
 
@@ -29,6 +30,26 @@ form = {
 a = App(form)
 html = render_element(a)
 print(html)
+
+re = render_element
+class YourLoginForm():
+    _phtml = re(chip.Form([
+        chip.Row([
+            chip.Input('username'),
+            chip.CheckboxField('password'),
+        ])
+    ]))
+
+foo = chip.Form([
+        chip.Row([
+            chip.Input('username'),
+            chip.CheckboxField('password'),
+        ])
+    ])
+fooo = re(foo)
+
+print(fooo)
+print("hello")
 
 # Write output to html file
 text_file = open("output.html", "w")
