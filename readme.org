@@ -81,6 +81,8 @@ Pretty printed, this final output is:
 </nav>
 #+end_src
 
+Feel free to check out the app.py and components.py files to see how a full page can be built easily using this method. The app.py file writes the html output to another file called output.html.
+
 * Trying it
 #+begin_src bash
 git clone git@github.com:tbinetruy/CHIP.git
