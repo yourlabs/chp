@@ -43,11 +43,3 @@ def create_prop(name, value):
         "name": name,
         "value": value,
     }
-
-def get_prop(props=[], name=[]):
-    for p in props:
-        try:
-            if p["name"] == name:
-                return p
-        except KeyError:
-            return None
