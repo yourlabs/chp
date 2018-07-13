@@ -32,13 +32,6 @@ html = render_element(a)
 print(html)
 
 re = render_element
-class YourLoginForm():
-    _phtml = re(chip.Form([
-        chip.Row([
-            chip.Input('username'),
-            chip.CheckboxField('password'),
-        ])
-    ]))
 
 foo = chip.Form([
         chip.Row([
@@ -46,10 +39,10 @@ foo = chip.Form([
             chip.CheckboxField('password'),
         ])
     ])
+
 fooo = re(foo)
 
 print(fooo)
-print("hello")
 
 # Write output to html file
 text_file = open("output.html", "w")
