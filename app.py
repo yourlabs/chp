@@ -36,8 +36,16 @@ blog_posts = [
         "author": "James Pic",
         "content": "yourlabs love you",
     },
+    {
+        "author": "Thomas Pic",
+        "content": "yourlabs love you",
+    },
 ]
 
-m = App(blog_posts, menu_links)
-el = render_element(m)
-print(el)
+a = App(blog_posts, menu_links)
+html = render_element(a)
+
+# Write output to html file
+text_file = open("output.html", "w")
+text_file.write(html)
+text_file.close()

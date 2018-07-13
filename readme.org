@@ -81,6 +81,14 @@ Pretty printed, this final output is:
 </nav>
 #+end_src
 
+* Trying it
+#+begin_src bash
+git clone git@github.com:tbinetruy/CHIP.git
+cd CHIP
+python app.py
+firefox output.html
+#+end_src
+
 * TODOS
 - Currently does not support self closing tags.  The render_element method should be updated.
 - Testing of the pyreact.py file
