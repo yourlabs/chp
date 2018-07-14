@@ -12,10 +12,23 @@ def context_middleware(context):
 def default_middleware(el):
     return el
 
-def render_element(el, middleware=default_middleware):
-    el = middleware(el)
+def render_html(el, props, child):
+    name = el["name"]
+    props_str = ""
+    for p in props:
+        if p["name"] != "children":
+            props_str += (" " + p["name"] + "=\"" + p["value"] + "\"")
 
-    props = el["props"]
+    self_closing_tags = ["input", "link", "img"]
+    if name in self_closing_tags:
+        return f"<{name} {props_str} />"
+
+    return f"<{name} {props_str}>{child}</{name}>"
+
+def render_ast(ast, middleware=default_middleware, render_middleware=render_html):
+    ast = middleware(ast)
+
+    props = ast["props"]
 
     children = False
     for p in props:
@@ -29,19 +42,12 @@ def render_element(el, middleware=default_middleware):
         child = children
     else:
         for c in children:
-            child += render_element(c, middleware)
+            child += render_ast(c, middleware, render_middleware)
 
-    name = el["name"]
-    props_str = ""
-    for p in props:
-        if p["name"] != "children":
-            props_str += (" " + p["name"] + "=\"" + p["value"] + "\"")
+    return render_html(ast, props, child)
 
-    self_closing_tags = ["input", "link", "img"]
-    if name in self_closing_tags:
-        return f"<{name} {props_str} />"
-
-    return f"<{name} {props_str}>{child}</{name}>"
+def render_element(ast, middleware):
+    return render_ast(ast, middleware, render_html)
 
 def create_element(name, props, children):
     props.append({

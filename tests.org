@@ -1,4 +1,33 @@
+def_func
+call_func
+def_var
+call_var
+
 #+begin_src python
+        root_comp = {
+            "name": "function",
+            "props": [
+                {
+                    "name": "children",
+                    "value": {
+                        "name": "span",
+                        "props": [
+                            {
+                                "name": "class",
+                                "value": "foo",
+                            },
+                            {
+                                "name": "children",
+                                "value": "I am a spanned h1",
+                            },
+                        ]
+                    }
+                },
+            ]
+        }
+
+        # should return 
+
         root_comp = {
             "name": "h1",
             "props": [
