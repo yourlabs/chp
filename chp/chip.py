@@ -62,7 +62,7 @@ assign = chip_js.assign
 op = chip_js.op
 call_anonymous = chip_js.call_anonymous
 def Input(value):
-    def create_js():
+    def update_label_value():
         content = [
             def_local('x', 'document.getElementById(\'myInput\').value'),
             chip_js.log('x'),
@@ -74,7 +74,7 @@ def Input(value):
 
     props = [
         cp('type', 'text'),
-        cp('onchange', create_js()),
+        cp('onchange', update_label_value()),
         cp('id', 'myInput'),
         cp('value', value),
     ]
