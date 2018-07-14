@@ -5,6 +5,9 @@ cp = pyreact.create_prop
 def cjs(props, children):
     return ce('js', props, children)
 
+def progn(content):
+    return call_anonymous(def_func("f", "", content))
+
 def call_anonymous(value):
     props = [
         cp('before', '('),

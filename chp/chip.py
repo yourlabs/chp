@@ -11,7 +11,7 @@ def Div(props, children):
 def Script(string = ""):
     return ce('script', [], string)
 
-def ScriptBefore(script_text, children):
+def ScriptBefore(children, script_text):
     children = children or []
     children = [Script(script_text)] + children
     return Div([], children)
@@ -67,7 +67,7 @@ def_func = chip_js.def_func
 assign = chip_js.assign
 op = chip_js.op
 call_anonymous = chip_js.call_anonymous
-def Input(value):
+def Input(value, subscribe_store_change):
     def update_label_value():
         content = [
             def_local('x', 'document.getElementById(\'myInput\').value'),
@@ -77,6 +77,10 @@ def Input(value):
         ast = call_anonymous(def_func("f", "", content))
         js = pyreact.render_js_element(ast)
         return js
+
+    subscribe_store_change([
+        chip_js.log('"killer"'),
+    ])
 
     props = [
         cp('type', 'text'),

@@ -1,4 +1,5 @@
 import chp
+from . import todos
 
 from django import forms
 
@@ -22,7 +23,7 @@ class PostForm(forms.ModelForm):
         ctx={
             "label": "Labelling:"
         }
-        Form = FormSchema(is_checked)
+        Form = todos.FormSchema(is_checked)
         html = chp.render_element(Form, chp.context_middleware(ctx))
         return mark_safe(html)
 
