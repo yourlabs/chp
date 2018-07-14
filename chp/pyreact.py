@@ -9,7 +9,10 @@ def context_middleware(context):
             return el
     return middleware
 
-def render_element(el, middleware):
+def default_middleware(el):
+    return el
+
+def render_element(el, middleware=default_middleware):
     el = middleware(el)
 
     props = el["props"]
