@@ -8,6 +8,14 @@ def Div(props, children):
     children = children or []
     return ce('div', props, children)
 
+def Script(string = ""):
+    return ce('script', [], string)
+
+def ScriptBefore(script_text, children):
+    children = children or []
+    children = [Script(script_text)] + children
+    return Div([], children)
+
 
 def Grid(children):
     children = children or []
@@ -33,9 +41,7 @@ def Cell(children):
 def Errors():
     props = []
     children='''
-        {% for error in form.non_field_errors %}
-            {{ error }}
-        {% endfor %}
+    errors go here
     '''
     return Div(props, children)
 
