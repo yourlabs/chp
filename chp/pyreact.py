@@ -1,6 +1,5 @@
 def context_middleware(context):
     def middleware(el):
-        print(el)
         if callable(el):
             return el(context)
         else:
