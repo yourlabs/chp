@@ -14,11 +14,15 @@ def FormSchema(is_checked):
     ])
 
 
+
 class PostForm(forms.ModelForm):
     def render(self):
         is_checked = 'checked' # self.checked
+        ctx={
+            "label": "Labelling:"
+        }
         Form = FormSchema(is_checked)
-        html = chp.render_element(Form)
+        html = chp.render_element(Form, ctx)
         return mark_safe(html)
 
     class Meta:

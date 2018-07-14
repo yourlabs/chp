@@ -73,11 +73,12 @@ def Checkbox(is_checked):
     ]
     return ce('input', props, [])
 
-def Label():
-    props = [
-        cp('for', '{{ id }}'),
-    ]
-    return ce('label', props, "{{ label }}")
+def Label(name):
+    def c(context):
+        props = [
+        ]
+        return ce('label', props, context["label"] + " " + name)
+    return c
 
 def CheckboxField(isChecked):
     children = []
@@ -92,7 +93,7 @@ def CheckboxField(isChecked):
                     [cp("class", "mdc-checkbox-background")],
                     []
                 ),
-                Label()
+                Label('Checkbox')
             ]
         ))
     return Div(props, children)

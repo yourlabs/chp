@@ -74,10 +74,12 @@ def Checkbox(is_checked):
     return ce('input', props, [])
 
 def Label():
-    props = [
-        cp('for', '{{ id }}'),
-    ]
-    return ce('label', props, "{{ label }}")
+    def c(context):
+        props = [
+            cp('for', context),
+        ]
+        return ce('label', props, context)
+    return c
 
 def CheckboxField(isChecked):
     children = []

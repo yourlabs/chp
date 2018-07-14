@@ -1,4 +1,7 @@
-def render_element(el):
+def render_element(el, context):
+    if callable(el):
+        el = el(context)
+
     props = el["props"]
 
     children = False
@@ -13,7 +16,7 @@ def render_element(el):
         child = children
     else:
         for c in children:
-            child += render_element(c)
+            child += render_element(c, context)
 
     name = el["name"]
     props_str = ""
