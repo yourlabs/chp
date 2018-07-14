@@ -117,15 +117,6 @@ class PostForm(forms.ModelForm):
         is_checked = 'checked' # self.checked
         return mark_safe(FormSchema(is_checked).render_element(Form))
 
-
-class YourLoginForm(forms.LoginForm):
-    _phtml = chp.Form([
-            chp.Row([
-                chp.Input('username'),
-                chp.CheckboxField('password'),
-            ])
-        ])
-
 #+end_src
 
 ~phtml~ becomes a string containing the following html code:
