@@ -1,4 +1,5 @@
 from . import pyreact
+from . import chip_js
 
 ce = pyreact.create_element
 cp = pyreact.create_prop
@@ -55,11 +56,26 @@ def Field(children):
     return Div(props, children)
 
 
+def_local = chip_js.def_local
+def_func = chip_js.def_func
+assign = chip_js.assign
+op = chip_js.op
+call_anonymous = chip_js.call_anonymous
 def Input(value):
+    def create_js():
+        content = [
+            def_local('x', 'document.getElementById(\'myInput\').value'),
+            chip_js.log('x'),
+            assign('document.getElementById(\'demo\').innerHTML', op('+', "'You selected: '", 'x')),
+        ]
+        ast = call_anonymous(def_func("f", "", content))
+        js = pyreact.render_js_element(ast)
+        return js
+
     props = [
-        cp('class', 'mdc-input__native-control'),
         cp('type', 'text'),
-        cp('id', '{{ id }}'),
+        cp('onchange', create_js()),
+        cp('id', 'myInput'),
         cp('value', value),
     ]
     return ce('input', props, [])

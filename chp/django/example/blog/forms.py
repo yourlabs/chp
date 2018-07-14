@@ -10,6 +10,7 @@ def FormSchema(is_checked):
         chp.Row([
             chp.Input('username'),
             chp.CheckboxField(is_checked),
+            chp.Div([chp.create_prop("id", "demo")], "yo")
         ])
     ])
 

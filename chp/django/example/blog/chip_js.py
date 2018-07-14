@@ -5,6 +5,14 @@ cp = chp.create_prop
 def cjs(props, children):
     return ce('js', props, children)
 
+def call_anonymous(value):
+    props = [
+        cp('before', '('),
+        cp('after', ')()'),
+    ]
+    children = value if type(value) is str else [value]
+    return cjs(props, children)
+
 def instruction(value):
     props = [
         cp('before', f'('),
@@ -77,18 +85,11 @@ def op(operation, operand, operee):
 
 i = instruction(op('+', '1', '2')),
 content = [
-    # def_local('a', '1'),
-    # def_global('a', '1'),
-    # instruction(op('+', '1', '2')),
-    # If('a === 2', i),
     def_local('x', 'document.getElementById(\'mySelect\').value'),
     assign('document.getElementById(\'demo\').innerHTML', op('+', "'You selected: '", 'x')),
-    Return('a')
 ]
 ast = def_local('a', '1')
-# ast = def_global('foo', def_func("foo", "a, b", [def_func("bar", "c, d, e", content)]))
-ast = def_func("f", "", content)
+ast = call_anonymous(def_func("f", "", content))
 js = chp.render_js_element(ast)
 print(js)
-
-# (function() {var x = })
+# returns => (function() {let x=(document.getElementById('mySelect').value);document.getElementById('demo').innerHTML=(('You selected: ' + x));return (a);})()
