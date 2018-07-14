@@ -22,7 +22,7 @@ class PostForm(forms.ModelForm):
             "label": "Labelling:"
         }
         Form = FormSchema(is_checked)
-        html = chp.render_element(Form, ctx)
+        html = chp.render_element(Form, chp.context_middleware(ctx))
         return mark_safe(html)
 
     class Meta:

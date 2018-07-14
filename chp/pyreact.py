@@ -1,6 +1,14 @@
-def render_element(el, context):
-    if callable(el):
-        el = el(context)
+def context_middleware(context):
+    def middleware(el):
+        print(el)
+        if callable(el):
+            return el(context)
+        else:
+            return el
+    return middleware
+
+def render_element(el, middleware):
+    el = middleware(el)
 
     props = el["props"]
 
@@ -16,7 +24,7 @@ def render_element(el, context):
         child = children
     else:
         for c in children:
-            child += render_element(c, context)
+            child += render_element(c, middleware)
 
     name = el["name"]
     props_str = ""
@@ -54,3 +62,9 @@ def get_prop(props=[], name=[]):
                 return p
         except KeyError:
             return None
+
+def create_context(value):
+    return [{
+            "name": "__context",
+            "value": value,
+        }]
