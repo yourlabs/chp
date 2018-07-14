@@ -1,3 +1,11 @@
+def get_prop(props=[], name=[]):
+    for p in props:
+        try:
+            if p["name"] == name:
+                return p
+        except KeyError:
+            return None
+
 # returns a middleware. a middleware is a function that takes and ast element and returns an other ast element
 # in the case of this middleware, we inspect the type of el and call it with a context.
 # with this middlware a component can now return a function taking a context as argument and returning an el.
@@ -17,15 +25,25 @@ def render_html(el, props, child):
     props_str = ""
     for p in props:
         if p["name"] != "children":
-            props_str += (" " + p["name"] + "=\"" + p["value"] + "\"")
+            props_str += (p["name"] + "=\"" + p["value"] + "\"")
 
     self_closing_tags = ["input", "link", "img"]
     if name in self_closing_tags:
         return f"<{name} {props_str} />"
+    print('heey')
 
     return f"<{name} {props_str}>{child}</{name}>"
 
-def render_ast(ast, ast_middleware=default_middleware, render_middleware=render_html):
+def render_js(el, props, child):
+    name = el["name"]
+    props_str = ""
+
+    before=get_prop(props, "before")["value"]
+    after=get_prop(props, "after")["value"]
+
+    return f"{before}{child}{after}"
+
+def render_ast(ast, ast_middleware, render_middleware):
     ast = ast_middleware(ast)
 
     props = ast["props"]
