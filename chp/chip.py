@@ -70,16 +70,17 @@ call_anonymous = chip_js.call_anonymous
 def Input(value, subscribe_store_change):
     def update_label_value():
         content = [
-            def_local('x', 'document.getElementById(\'myInput\').value'),
-            chip_js.log('x'),
-            assign('document.getElementById(\'demo\').innerHTML', op('+', "'You selected: '", 'x')),
+            def_local('x', 'document.getElementById(`myInput`).value'),
+            chip_js.log('`hey` + x'),
+            assign('window.todoStore.name', 'x'),
         ]
         ast = call_anonymous(def_func("f", "", content))
         js = pyreact.render_js_element(ast)
         return js
 
     subscribe_store_change([
-        chip_js.log('"killer"'),
+        chip_js.log('`killer`'),
+        chip_js.instruction('window.todoStore.name === `foo` ? document.getElementById(`demo`).innerHTML = "you won" : document.getElementById(`demo`).innerHTML = ""'),
     ])
 
     props = [
