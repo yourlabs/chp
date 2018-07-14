@@ -44,9 +44,12 @@ def render_ast(ast, ast_middleware=default_middleware, render_middleware=render_
         for c in children:
             child += render_ast(c, ast_middleware, render_middleware)
 
-    return render_html(ast, props, child)
+    return render_middleware(ast, props, child)
 
-def render_element(ast, middleware):
+def render_js_element(ast):
+    return render_ast(ast, default_middleware, render_js)
+
+def render_element(ast, middleware=default_middleware):
     return render_ast(ast, middleware, render_html)
 
 def create_element(name, props, children):
