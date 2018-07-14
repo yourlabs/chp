@@ -10,7 +10,7 @@ A component is any function that returns the result of a ~create_element~ call. 
 Let us first define a Text component. We will create a text element without any attributes:
 
 #+begin_src python :session
-from pyreact import create_element, create_prop, render_element
+from chp import create_element, create_prop, render_element
 
 def Text(t):
     return create_element("span", [], t)
@@ -102,13 +102,27 @@ To run the example project:
 - py.test path/to/chp
 
 #+begin_src python
-import chip
+import chp
+
+def FormSchema(is_checked):
+    return chp.Form([
+        chp.Row([
+            chp.Input('username'),
+            chp.CheckboxField(is_checked),
+        ])
+    ])
+
+class PostForm(forms.ModelForm):
+    def render(self):
+        is_checked = 'checked' # self.checked
+        return mark_safe(FormSchema(is_checked).render_element(Form))
+
 
 class YourLoginForm(forms.LoginForm):
-    _phtml = chip.Form([
-            chip.Row([
-                chip.Input('username'),
-                chip.CheckboxField('password'),
+    _phtml = chp.Form([
+            chp.Row([
+                chp.Input('username'),
+                chp.CheckboxField('password'),
             ])
         ])
 
