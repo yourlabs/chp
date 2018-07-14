@@ -142,5 +142,4 @@ class PostForm(forms.ModelForm):
 #+end_src
 
 * TODOS
-- Currently does not support self closing tags.  The render_element method should be updated.
 - Testing of the pyreact.py file. Some of the high level results were copy pasted into tests.org
