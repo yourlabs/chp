@@ -81,20 +81,23 @@ def Label(name):
     return c
 
 def CheckboxField(isChecked):
-    children = []
-    props = [
-        cp('class', 'mdc-form-field')
-    ]
-    children.append(Div(
-            [cp("class", "mdc-checkbox")],
-            [
-                Checkbox(isChecked),
-                Div(
-                    [cp("class", "mdc-checkbox-background")],
-                    []
-                ),
-                Label('Checkbox')
-            ]
-        ))
-    return Div(props, children)
+    def c(context):
+        children = []
+        props = [
+            cp('class', 'mdc-form-field')
+        ]
+        children.append(Div(
+                [cp("class", "mdc-checkbox")],
+                [
+                    Checkbox(isChecked),
+                    Div(
+                        [cp("class", "mdc-checkbox-background")],
+                        []
+                    ),
+                    Label('Checkbox'),
+                    Label(context["label"])
+                ]
+            ))
+        return Div(props, children)
+    return c
 

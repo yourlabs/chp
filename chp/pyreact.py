@@ -1,3 +1,6 @@
+# returns a middleware. a middleware is a function that takes and ast element and returns an other ast element
+# in the case of this middleware, we inspect the type of el and call it with a context.
+# with this middlware a component can now return a function taking a context as argument and returning an el.
 def context_middleware(context):
     def middleware(el):
         if callable(el):
