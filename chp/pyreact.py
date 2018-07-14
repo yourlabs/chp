@@ -25,8 +25,8 @@ def render_html(el, props, child):
 
     return f"<{name} {props_str}>{child}</{name}>"
 
-def render_ast(ast, middleware=default_middleware, render_middleware=render_html):
-    ast = middleware(ast)
+def render_ast(ast, ast_middleware=default_middleware, render_middleware=render_html):
+    ast = ast_middleware(ast)
 
     props = ast["props"]
 
@@ -42,7 +42,7 @@ def render_ast(ast, middleware=default_middleware, render_middleware=render_html
         child = children
     else:
         for c in children:
-            child += render_ast(c, middleware, render_middleware)
+            child += render_ast(c, ast_middleware, render_middleware)
 
     return render_html(ast, props, child)
 
