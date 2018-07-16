@@ -60,9 +60,13 @@ def FormSchema(value):
         return chp.ScriptBefore(
             [
                 chp.Form([
-                    chp.Row([
+                    chp.Cell([
                         chp.Input('username', subscribe_store_change),
-                        chp.Div([chp.create_prop("id", "demo")], "yo")
+                        chp.Div(
+                            [chp.create_prop("style", "height: 5rem")],
+                            "If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!"
+                        ),
+                        chp.Div([chp.create_prop("id", "demo"), chp.create_prop("style", "color: red")], ""),
                     ])
                 ])
             ],

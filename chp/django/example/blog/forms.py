@@ -7,6 +7,7 @@ from .models import Post
 from django.utils.safestring import mark_safe
 
 def FormSchema(is_checked):
+
     return chp.Form([
         chp.Row([
             chp.Input('username'),
@@ -21,7 +22,8 @@ class PostForm(forms.ModelForm):
     def render(self):
         is_checked = 'checked' # self.checked
         ctx={
-            "label": "Labelling:"
+            "label": "Labelling:",
+            "password": "bar"
         }
         Form = todos.FormSchema(is_checked)
         html = chp.render_element(Form, chp.context_middleware(ctx))
