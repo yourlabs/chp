@@ -293,24 +293,6 @@ def Field(children):
     return Div(props, children)
 
 
-def Input(value):
-    def update_label_value():
-        content = [
-            def_local('x', 'document.getElementById(`myInput`).value'),
-            instruction("window.todoStore.name=x"),
-        ]
-        ast = call_anonymous(def_func("f", "", content))
-        js = render_js_element(ast)
-        return js
-
-    props = [
-        cp('type', 'text'),
-        cp('onkeyup', update_label_value()),
-        cp('id', 'myInput'),
-        cp('value', value),
-    ]
-    return ce('input', props, [])
-
 def Checkbox(is_checked):
     props = [
         cp('class', 'mdc-checkbox__native-control'),
@@ -349,7 +331,7 @@ def CheckboxField(isChecked):
     return c
 
 
-####### TODO.py
+####### store.py
 
 
 
@@ -368,15 +350,16 @@ def create_store(store_name, on_store_change):
     js = render_js_element(ast)
     return js
 
-def render_app():
+def render_app(store_name):
     return progn([
-        def_local("str", "render_ast(FormSchema(window.todoStore), default_middleware, render_html)"),
+        def_local("str", f"render_ast(FormSchema(window.{store_name}), default_middleware, render_html)"),
         assign("document.querySelector('body').innerHTML", "str"),
         progn("eval(document.querySelector('body script').innerHTML);"),
     ])
 
+####### TODO.py
 
-def Button(name, on_click):
+def SubmitButton(name, on_click):
     props = [
         cp('onclick', on_click)
     ]
@@ -398,11 +381,31 @@ def TodoItem(name, todo_id):
     ]
     return Div(props, name)
 
+def Input(value):
+    def update_label_value():
+        content = [
+            def_local('x', 'document.getElementById(`myInput`).value'),
+            instruction("window.todoStore.name=x"),
+        ]
+        ast = call_anonymous(def_func("f", "", content))
+        js = render_js_element(ast)
+        return js
+
+    props = [
+        cp('type', 'text'),
+        cp('onkeyup', update_label_value()),
+        cp('id', 'myInput'),
+        cp('value', value),
+        cp('onfocus', "(()=>{let value = this.value;this.value=''; this.value = value})()")
+    ]
+    return ce('input', props, [])
+
 
 def FormSchema(store_content):
     store_name = "todoStore"
     store_change_cb = [
-        render_app(),
+        render_app(store_name),
+        progn("document.querySelector('#myInput').focus()"), # FIX => quick input focus had on rerender
     ]
 
     def update_todos():
@@ -433,7 +436,7 @@ def FormSchema(store_content):
                     "If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!"
                 ),
                 Div([create_prop("id", "demo"), create_prop("style", "color: red" if store_content["name"] == "foo" else "color: green")], "what color am I ?"),
-                Button("Submit", update_todos())
+                SubmitButton("Submit", update_todos())
             ])
         ])
 
