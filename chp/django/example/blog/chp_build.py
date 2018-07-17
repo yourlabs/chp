@@ -133,7 +133,7 @@ def progn(content):
 def call_anonymous(value):
     props = [
         cp('before', '('),
-        cp('after', ')()'),
+        cp('after', ')();'),
     ]
     children = value if type(value) is str else [value]
     return cjs(props, children)
@@ -294,7 +294,7 @@ def Field(children):
     return Div(props, children)
 
 
-def Input(value, subscribe_store_change):
+def Input(value):
     def update_label_value():
         content = [
             def_local('x', 'document.getElementById(`myInput`).value'),
@@ -304,12 +304,6 @@ def Input(value, subscribe_store_change):
         ast = call_anonymous(def_func("f", "", content))
         js = render_js_element(ast)
         return js
-
-    subscribe_store_change([
-        log('`killer`'),
-        log('`keydown`'),
-        instruction('window.todoStore.name === `foo` ? document.getElementById(`demo`).innerHTML = "you won" : document.getElementById(`demo`).innerHTML = ""'),
-    ])
 
     props = [
         cp('type', 'text'),
@@ -380,23 +374,12 @@ def FormSchema(store_content):
     store_name = "todoStore"
     store_change_func_content = [
         log('obj[prop]'),
+        def_local("str", "render_ast(FormSchema(window.todoStore), default_middleware, render_html)"),
+        assign("document.querySelector('body').innerHTML", "str"),
         progn(
-            "for(let key in chp_build) { window[key] = chp_build[key]};" +
-            "str = render_ast(FormSchema(window.todoStore), default_middleware, render_html);" +
-            "document.querySelector('body').innerHTML = str;" +
             "eval(document.querySelector('body script').innerHTML);"
         )
     ]
-    def update_label_value():
-        content = [
-            def_local('x', 'document.getElementById(\'myInput\').value'),
-            log('x'),
-            assign('document.getElementById(\'demo\').innerHTML', op('+', "'You selected: '", 'x')),
-        ]
-        ast = progn(content)
-        js = render_js_element(ast)
-        return js
-
     def get_on_store_change():
         return store_change_func_content
 
@@ -410,7 +393,7 @@ def FormSchema(store_content):
     def render():
         form = Form([
             Cell([
-                Input(store_content["name"], subscribe_store_change),
+                Input(store_content["name"]),
                 Div(
                     [create_prop("style", "height: 5rem")],
                     "If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!"
