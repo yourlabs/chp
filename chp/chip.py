@@ -72,7 +72,7 @@ def Input(value, subscribe_store_change):
         content = [
             def_local('x', 'document.getElementById(`myInput`).value'),
             chip_js.log('`hey` + x'),
-            assign('window.todoStore.name', 'x'),
+            chip_js.instruction("window.todoStore.name=x"),
         ]
         ast = call_anonymous(def_func("f", "", content))
         js = pyreact.render_js_element(ast)
@@ -80,12 +80,13 @@ def Input(value, subscribe_store_change):
 
     subscribe_store_change([
         chip_js.log('`killer`'),
+        chip_js.log('`keydown`'),
         chip_js.instruction('window.todoStore.name === `foo` ? document.getElementById(`demo`).innerHTML = "you won" : document.getElementById(`demo`).innerHTML = ""'),
     ])
 
     props = [
         cp('type', 'text'),
-        cp('onchange', update_label_value()),
+        cp('onkeyup', update_label_value()),
         cp('id', 'myInput'),
         cp('value', value),
     ]

@@ -1,5 +1,5 @@
 "use strict";
-// Transcrypt'ed from Python, 2018-07-16 21:32:08
+// Transcrypt'ed from Python, 2018-07-17 02:21:11
 function chp_build () {
     var __symbols__ = ['__py3.6__', '__esv5__'];
     var __all__ = {};
@@ -2413,7 +2413,8 @@ function chp_build () {
 		};
 		var ScriptBefore = function (children, script_text) {
 			var children = children || list ([]);
-			var children = list ([Script (script_text)]) + children;
+			var script = list ([Script (script_text)]);
+			var children = script.append (children);
 			return Div (list ([]), children);
 		};
 		var Grid = function (children) {
@@ -2485,9 +2486,9 @@ function chp_build () {
 			var js = render_js_element (ast);
 			return js;
 		};
-		var FormSchema = function (value) {
-			var store = 'todoStore';
-			var store_change_func_content = list ([log ('obj[prop]')]);
+		var FormSchema = function (store_content) {
+			var store_name = 'todoStore';
+			var store_change_func_content = list ([log ('obj[prop]'), progn ((('for(let key in chp_build) { window[key] = chp_build[key]};' + 'str = render_ast(FormSchema(window.todoStore), default_middleware, render_html);') + "document.querySelector('body').innerHTML = str;") + "eval(document.querySelector('body script').innerHTML);")]);
 			var update_label_value = function () {
 				var content = list ([def_local ('x', "document.getElementById('myInput').value"), log ('x'), assign ("document.getElementById('demo').innerHTML", op ('+', "'You selected: '", 'x'))]);
 				var ast = progn (content);
@@ -2498,13 +2499,18 @@ function chp_build () {
 				return store_change_func_content;
 			};
 			var get_js = function () {
-				return create_store (store, get_on_store_change ());
+				return create_store (store_name, get_on_store_change ());
 			};
 			var subscribe_store_change = function (content) {
-				store_change_func_content += content;
+				var __iterable0__ = content;
+				for (var __index0__ = 0; __index0__ < len (__iterable0__); __index0__++) {
+					var c = __iterable0__ [__index0__];
+					store_change_func_content.append (c);
+				}
 			};
 			var render = function () {
-				return ScriptBefore (list ([Form (list ([Cell (list ([Input ('username', subscribe_store_change), Div (list ([create_prop ('style', 'height: 5rem')]), 'If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!'), Div (list ([create_prop ('id', 'demo'), create_prop ('style', 'color: red')]), '')]))]))]), get_js ());
+				var form = Form (list ([Cell (list ([Input (store_content ['name'], subscribe_store_change), Div (list ([create_prop ('style', 'height: 5rem')]), 'If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!'), Div (list ([create_prop ('id', 'demo'), create_prop ('style', 'color: red')]), '')]))]));
+				return Div (list ([]), list ([Script (get_js ()), form]));
 			};
 			return render ();
 		};

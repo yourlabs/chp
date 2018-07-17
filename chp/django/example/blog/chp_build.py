@@ -244,7 +244,8 @@ def Script(string = ""):
 
 def ScriptBefore(children, script_text):
     children = children or []
-    children = [Script(script_text)] + children
+    script = [Script(script_text)]
+    children =  script.append(children)
     return Div([], children)
 
 
@@ -375,10 +376,16 @@ def create_store(store_name, on_store_change):
     js = render_js_element(ast)
     return js
 
-def FormSchema(value):
-    store = "todoStore"
+def FormSchema(store_content):
+    store_name = "todoStore"
     store_change_func_content = [
         log('obj[prop]'),
+        progn(
+            "for(let key in chp_build) { window[key] = chp_build[key]};" +
+            "str = render_ast(FormSchema(window.todoStore), default_middleware, render_html);" +
+            "document.querySelector('body').innerHTML = str;" +
+            "eval(document.querySelector('body script').innerHTML);"
+        )
     ]
     def update_label_value():
         content = [
@@ -394,27 +401,30 @@ def FormSchema(value):
         return store_change_func_content
 
     def get_js():
-        return create_store(store, get_on_store_change())
+        return create_store(store_name, get_on_store_change())
 
     def subscribe_store_change(content):
-        nonlocal store_change_func_content
-        store_change_func_content += content
+        for c in content:
+            store_change_func_content.append(c)
 
     def render():
-        return ScriptBefore(
+        form = Form([
+            Cell([
+                Input(store_content["name"], subscribe_store_change),
+                Div(
+                    [create_prop("style", "height: 5rem")],
+                    "If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!"
+                ),
+                Div([create_prop("id", "demo"), create_prop("style", "color: red")], ""),
+            ])
+        ])
+
+        return Div(
+            [],
             [
-                Form([
-                    Cell([
-                        Input('username', subscribe_store_change),
-                        Div(
-                            [create_prop("style", "height: 5rem")],
-                            "If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!"
-                        ),
-                        Div([create_prop("id", "demo"), create_prop("style", "color: red")], ""),
-                    ])
-                ])
+                Script(get_js()),
+                form,
             ],
-            get_js(),
         )
 
     return render()

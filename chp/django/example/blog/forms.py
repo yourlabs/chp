@@ -1,5 +1,5 @@
 import chp
-from . import todos
+from . import chp_build
 
 from django import forms
 
@@ -20,12 +20,18 @@ def FormSchema(is_checked):
 
 class PostForm(forms.ModelForm):
     def render(self):
-        is_checked = 'checked' # self.checked
+        is_checked = {
+            "name": "hello",
+        }
         ctx={
             "label": "Labelling:",
             "password": "bar"
         }
-        Form = todos.FormSchema(is_checked)
+        store = {
+            "name": "this is my first store !!",
+        }
+        Form = chp_build.FormSchema(is_checked)
+        print(Form)
         html = chp.render_element(Form, chp.context_middleware(ctx))
         return mark_safe(html)
 
