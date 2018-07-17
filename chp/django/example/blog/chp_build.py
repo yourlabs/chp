@@ -380,7 +380,7 @@ def TodoItem(name, todo_id):
     def remove_todo():
         ast = progn([
             instruction(f"todos = window.todoStore.todos || []"),
-            instruction(f"todos = todos.filter(t => t.id !== {todo_id})"),
+            instruction(f"todos = todos.filter(t => parseInt(t.id) !== {todo_id})"),
             instruction(f"window.todoStore.todos = [...todos]"),
         ])
         return render_js_element(ast)
