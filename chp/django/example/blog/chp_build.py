@@ -430,13 +430,18 @@ def FormSchema(store_content):
     def render():
         form = Form([
             Cell([
-                Input(store_content["name"]),
+                Div(
+                    [cp("style", "display: flex;")],
+                    [
+                        Input(store_content["name"]),
+                        SubmitButton("Submit", update_todos()),
+                    ],
+                ),
                 Div(
                     [create_prop("style", "height: 5rem")],
                     "If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!"
                 ),
                 Div([create_prop("id", "demo"), create_prop("style", "color: red" if store_content["name"] == "foo" else "color: green")], "what color am I ?"),
-                SubmitButton("Submit", update_todos())
             ])
         ])
 
