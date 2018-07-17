@@ -29,12 +29,19 @@ class PostForm(forms.ModelForm):
         }
         store = {
             "name": "this is my first store !!",
-            "todos": [{
-                "name": "hello",
-                "id": "0",
-            }]
+            "todos": [
+                {
+                    "name": "hello",
+                    "id": "0",
+                },
+                {
+                    "name": "todo number secondo !!",
+                    "id": "1",
+                },
+            ]
         }
-        Form = chp_build.FormSchema(store)
+        import json
+        Form = chp_build.FormSchema(store, json.dumps(store))
         print(Form)
         html = chp.render_element(Form, chp.context_middleware(ctx))
         return mark_safe(html)

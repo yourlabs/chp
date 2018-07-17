@@ -239,6 +239,10 @@ def Div(props, children):
     children = children or []
     return ce('div', props, children)
 
+def Button(props, children):
+    children = children or []
+    return ce('button', props, children)
+
 def Script(string = ""):
     return ce('script', [], string)
 
@@ -337,22 +341,22 @@ def CheckboxField(isChecked):
 
 
 
-def create_store(store_name, on_store_change):
+def create_store(store_name, on_store_change, json_init_state):
     onchange_cb = store_name + "_cb"
     code = [
         def_global(onchange_cb, def_func("f", "obj, prop", on_store_change)),
         def_global(
             store_name,
-            '!window.todoStore ? new Proxy({}, { set: (obj, prop, value) => {obj[prop]=value;window.'+onchange_cb+'(obj, prop); return true } }) : window.todoStore'
+            '!window.todoStore ? new Proxy(JSON.parse(\'' + json_init_state + '\'), { set: (obj, prop, value) => {obj[prop]=value;window.'+onchange_cb+'(obj, prop); return true } }) : window.todoStore'
         ),
     ]
     ast = progn(code)
     js = render_js_element(ast)
     return js
 
-def render_app(store_name):
+def render_app(store_name, store_content_json):
     return progn([
-        def_local("str", f"render_ast(FormSchema(window.{store_name}), default_middleware, render_html)"),
+        def_local("str", f"render_ast(FormSchema(window.{store_name}, '{store_content_json}'), default_middleware, render_html)"),
         assign("document.querySelector('body').innerHTML", "str"),
         progn("eval(document.querySelector('body script').innerHTML);"),
     ])
@@ -370,7 +374,7 @@ def SubmitButton(name, on_click):
     props = [
         cp('onclick', on_click)
     ]
-    return Div(props, name)
+    return Button(props, name)
 
 def TodoItem(name, todo_id):
     def remove_todo():
@@ -408,19 +412,19 @@ def Input(value):
     return ce('input', props, [])
 
 
-def FormSchema(store_content):
+def FormSchema(store_content, store_content_json):
     store_name = "todoStore"
     store_change_cb = [
-        render_app(store_name),
+        render_app(store_name, store_content_json),
         progn("document.querySelector('#myInput').focus()"), # FIX => quick input focus had on rerender
     ]
 
-    def update_todos():
+    def add_todos():
         ast = progn([
             def_local("t", "window.todoStore.todos ? window.todoStore.todos : []"),
             assign(
                 "window.todoStore.todos",
-                "[...t, {name: window.todoStore.name, id: t.length - 1}]",
+                "[...t, {name: window.todoStore.name, id: t.length}]",
             ),
             assign("window.todoStore.name", "''"),
         ])
@@ -434,7 +438,7 @@ def FormSchema(store_content):
                     [cp("style", "display: flex;")],
                     [
                         Input(store_content["name"]),
-                        SubmitButton("Submit", update_todos()),
+                        SubmitButton("Submit", add_todos()),
                     ],
                 ),
                 Div(
@@ -452,7 +456,7 @@ def FormSchema(store_content):
         return Div(
             [],
             [
-                Script(create_store(store_name, store_change_cb)),
+                Script(create_store(store_name, store_change_cb, store_content_json)),
                 form,
                 Div([], reversed(todos)),
             ],
