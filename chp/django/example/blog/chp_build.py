@@ -368,7 +368,32 @@ def render_app(store_name, store_content_json):
 
 
 
+## Store manipulations
 
+def remove_todo(todo_id):
+    todos = todoStore["todos"] or []
+    todos = list(filter(lambda t: parseInt(t["id"]) != todo_id, todos))
+    todoStore.todos = todos
+
+def update_todo_name():
+    x = document["getElementById"]('myInput')
+    todoStore["name"] = x["value"]
+
+def add_todo(todoStore):
+    todos = todoStore.todos or []
+    t = todos[:]
+    t.append({ "name" : todoStore["name"], "id": t.length})
+    todoStore["todos"] = t
+    todoStore["name"] = ""
+
+
+store_updates = {
+    "add_todo": add_todo,
+    "remove_todo": remove_todo,
+    "update_todo_name": update_todo_name,
+}
+
+## Components
 
 def SubmitButton(name, on_click):
     props = [
@@ -376,41 +401,29 @@ def SubmitButton(name, on_click):
     ]
     return Button(props, name)
 
-def TodoItem(name, todo_id):
-    def remove_todo():
-        ast = progn([
-            instruction(f"todos = window.todoStore.todos || []"),
-            instruction(f"todos = todos.filter(t => parseInt(t.id) !== {todo_id})"),
-            instruction(f"window.todoStore.todos = [...todos]"),
-        ])
-        return render_js_element(ast)
 
+def TodoItem(name, todo_id):
+    on_click = f"store_updates.remove_todo({todo_id})"
     props = [
         cp("id", todo_id),
         cp("style", "margin: 1rem; height: 3rem; background-color: rgba(0, 0, 0, 0.2); border: 2px solid black"),
-        cp("onclick", remove_todo()),
+        cp("onclick", on_click),
     ]
     return Div(props, name)
 
+
 def Input(value):
-    def update_label_value():
-        content = [
-            def_local('x', 'document.getElementById(`myInput`).value'),
-            instruction("window.todoStore.name=x"),
-        ]
-        ast = call_anonymous(def_func("f", "", content))
-        js = render_js_element(ast)
-        return js
+    on_key_up = "store_updates.update_todo_name()"
+    focus_hack = "(()=>{let value = this.value;this.value=''; this.value = value})()"
 
     props = [
         cp('type', 'text'),
-        cp('onkeyup', update_label_value()),
+        cp('onkeyup', on_key_up),
         cp('id', 'myInput'),
         cp('value', value),
-        cp('onfocus', "(()=>{let value = this.value;this.value=''; this.value = value})()")
+        cp('onfocus', focus_hack)
     ]
     return ce('input', props, [])
-
 
 def FormSchema(store_content, store_content_json):
     store_name = "todoStore"
@@ -420,16 +433,7 @@ def FormSchema(store_content, store_content_json):
     ]
 
     def add_todos():
-        ast = progn([
-            def_local("t", "window.todoStore.todos ? window.todoStore.todos : []"),
-            assign(
-                "window.todoStore.todos",
-                "[...t, {name: window.todoStore.name, id: t.length}]",
-            ),
-            assign("window.todoStore.name", "''"),
-        ])
-        js = render_js_element(ast)
-        return js
+        return f"store_updates.add_todo({store_name})"
 
     def render():
         form = Form([
