@@ -1,5 +1,5 @@
 "use strict";
-// Transcrypt'ed from Python, 2018-07-17 02:21:11
+// Transcrypt'ed from Python, 2018-07-17 02:51:35
 function chp_build () {
     var __symbols__ = ['__py3.6__', '__esv5__'];
     var __all__ = {};
@@ -2481,7 +2481,7 @@ function chp_build () {
 		};
 		var create_store = function (store_name, on_store_change) {
 			var onchange_cb = store_name + '_cb';
-			var code = list ([def_global (onchange_cb, def_func ('f', 'obj, prop', on_store_change)), def_global (store_name, ('new Proxy({}, { set: (obj, prop, value) => {obj[prop]=value;window.' + onchange_cb) + '(obj, prop); return true } })')]);
+			var code = list ([def_global (onchange_cb, def_func ('f', 'obj, prop', on_store_change)), def_global (store_name, ('!window.todoStore ? new Proxy({}, { set: (obj, prop, value) => {obj[prop]=value;window.' + onchange_cb) + '(obj, prop); return true } }) : window.todoStore')]);
 			var ast = progn (code);
 			var js = render_js_element (ast);
 			return js;
@@ -2509,7 +2509,7 @@ function chp_build () {
 				}
 			};
 			var render = function () {
-				var form = Form (list ([Cell (list ([Input (store_content ['name'], subscribe_store_change), Div (list ([create_prop ('style', 'height: 5rem')]), 'If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!'), Div (list ([create_prop ('id', 'demo'), create_prop ('style', 'color: red')]), '')]))]));
+				var form = Form (list ([Cell (list ([Input (store_content ['name'], subscribe_store_change), Div (list ([create_prop ('style', 'height: 5rem')]), 'If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!'), Div (list ([create_prop ('id', 'demo'), create_prop ('style', (store_content ['name'] == 'foo' ? 'color: red' : 'color: green'))]), 'what color am I ?')]))]));
 				return Div (list ([]), list ([Script (get_js ()), form]));
 			};
 			return render ();

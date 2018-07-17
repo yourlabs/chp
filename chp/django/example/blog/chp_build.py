@@ -369,7 +369,7 @@ def create_store(store_name, on_store_change):
         def_global(onchange_cb, def_func("f", "obj, prop", on_store_change)),
         def_global(
             store_name,
-            'new Proxy({}, { set: (obj, prop, value) => {obj[prop]=value;window.'+onchange_cb+'(obj, prop); return true } })'
+            '!window.todoStore ? new Proxy({}, { set: (obj, prop, value) => {obj[prop]=value;window.'+onchange_cb+'(obj, prop); return true } }) : window.todoStore'
         ),
     ]
     ast = progn(code)
@@ -415,7 +415,7 @@ def FormSchema(store_content):
                     [create_prop("style", "height: 5rem")],
                     "If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!"
                 ),
-                Div([create_prop("id", "demo"), create_prop("style", "color: red")], ""),
+                Div([create_prop("id", "demo"), create_prop("style", "color: red" if store_content["name"] == "foo" else "color: green")], "what color am I ?"),
             ])
         ])
 
