@@ -124,7 +124,7 @@ def create_context(value):
 
 ce = create_element
 cp = create_prop
-def cjs(props, children):
+def cjs(props, children): # create js element
     return ce('js', props, children)
 
 def progn(content):
@@ -273,7 +273,6 @@ def Cell(children):
 def Errors():
     props = []
     children='''
-    errors go here
     '''
     return Div(props, children)
 
@@ -298,7 +297,6 @@ def Input(value):
     def update_label_value():
         content = [
             def_local('x', 'document.getElementById(`myInput`).value'),
-            log('`hey` + x'),
             instruction("window.todoStore.name=x"),
         ]
         ast = call_anonymous(def_func("f", "", content))
@@ -370,25 +368,61 @@ def create_store(store_name, on_store_change):
     js = render_js_element(ast)
     return js
 
-def FormSchema(store_content):
-    store_name = "todoStore"
-    store_change_func_content = [
-        log('obj[prop]'),
+def render_app():
+    return progn([
         def_local("str", "render_ast(FormSchema(window.todoStore), default_middleware, render_html)"),
         assign("document.querySelector('body').innerHTML", "str"),
-        progn(
-            "eval(document.querySelector('body script').innerHTML);"
-        )
+        progn("eval(document.querySelector('body script').innerHTML);"),
+    ])
+
+
+def Button(name, on_click):
+    props = [
+        cp('onclick', on_click)
     ]
-    def get_on_store_change():
-        return store_change_func_content
+    return Div(props, name)
+
+def TodoItem(name, todo_id):
+    def remove_todo():
+        ast = progn([
+            instruction(f"todos = window.todoStore.todos || []"),
+            instruction(f"todos = todos.filter(t => t.id !== {todo_id})"),
+            instruction(f"window.todoStore.todos = [...todos]"),
+        ])
+        return render_js_element(ast)
+
+    props = [
+        cp("id", todo_id),
+        cp("style", "margin: 1rem; height: 3rem; background-color: rgba(0, 0, 0, 0.2); border: 2px solid black"),
+        cp("onclick", remove_todo()),
+    ]
+    return Div(props, name)
+
+
+def FormSchema(store_content):
+    store_name = "todoStore"
+    store_change_cb = [
+        render_app(),
+    ]
+
+    def update_todos():
+        ast = progn([
+            def_local("t", "window.todoStore.todos ? window.todoStore.todos : []"),
+            assign(
+                "window.todoStore.todos",
+                "[...t, {name: window.todoStore.name, id: t.length - 1}]",
+            ),
+            assign("window.todoStore.name", "''"),
+        ])
+        js = render_js_element(ast)
+        return js
 
     def get_js():
-        return create_store(store_name, get_on_store_change())
+        return create_store(store_name, store_change_cb)
 
     def subscribe_store_change(content):
         for c in content:
-            store_change_func_content.append(c)
+            store_change_cb.append(c)
 
     def render():
         form = Form([
@@ -399,14 +433,20 @@ def FormSchema(store_content):
                     "If you type <strong>foo</strong> in the textbox and unfocus, your secret message will appear !!"
                 ),
                 Div([create_prop("id", "demo"), create_prop("style", "color: red" if store_content["name"] == "foo" else "color: green")], "what color am I ?"),
+                Button("Submit", update_todos())
             ])
         ])
+
+        todos = []
+        for t in store_content["todos"]:
+            todos.append(TodoItem(t["name"], t["id"]))
 
         return Div(
             [],
             [
                 Script(get_js()),
                 form,
+                Div([], reversed(todos)),
             ],
         )
 

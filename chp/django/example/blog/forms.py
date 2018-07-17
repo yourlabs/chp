@@ -29,8 +29,12 @@ class PostForm(forms.ModelForm):
         }
         store = {
             "name": "this is my first store !!",
+            "todos": [{
+                "name": "hello",
+                "id": "0",
+            }]
         }
-        Form = chp_build.FormSchema(is_checked)
+        Form = chp_build.FormSchema(store)
         print(Form)
         html = chp.render_element(Form, chp.context_middleware(ctx))
         return mark_safe(html)
