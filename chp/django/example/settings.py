@@ -22,6 +22,10 @@ DATABASES = {
     }
 }
 STATIC_URL = '/static/'
+BASE_DIR = os.path.dirname(__file__)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "blog", "dist"),
+]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
