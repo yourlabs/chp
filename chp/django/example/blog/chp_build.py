@@ -357,7 +357,14 @@ def render_app(store_name):
         progn("eval(document.querySelector('body script').innerHTML);"),
     ])
 
-####### TODO.py
+
+
+
+####### todos.py
+
+
+
+
 
 def SubmitButton(name, on_click):
     props = [
@@ -420,13 +427,6 @@ def FormSchema(store_content):
         js = render_js_element(ast)
         return js
 
-    def get_js():
-        return create_store(store_name, store_change_cb)
-
-    def subscribe_store_change(content):
-        for c in content:
-            store_change_cb.append(c)
-
     def render():
         form = Form([
             Cell([
@@ -447,7 +447,7 @@ def FormSchema(store_content):
         return Div(
             [],
             [
-                Script(get_js()),
+                Script(create_store(store_name, store_change_cb)),
                 form,
                 Div([], reversed(todos)),
             ],
