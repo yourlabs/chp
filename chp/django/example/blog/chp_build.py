@@ -100,8 +100,8 @@ def diff_asts(old, new):
             for c in new_children:
                 html += render_element(c)
                 # new_tree
-                new_tree_children = get_prop('children', new_tree["props"]) # ref to new_tree's props
-                new_tree_children = get_prop('children', new["props"]) # now ref to new's props
+                new_tree_children = get_prop(new_tree["props"], 'children') # ref to new_tree's props
+                new_tree_children["value"] = get_prop(new["props"], 'children')["value"] # now ref to new's props
 
 
         patches.append({
@@ -110,12 +110,20 @@ def diff_asts(old, new):
             "html": html,
         })
     else:
-        i = 0
-        while i < len(new_children):
-            ps = diff_asts(old_children[i], new_children[i])[0]
-            for p in ps:
-                patches.append(p)
-            i += 1
+        new_tree_children = get_prop(new_tree["props"], 'children') # ref to new_tree's props
+        new_tree_children = get_prop(new["props"], 'children') # ref to new_tree's props
+        if type(new_children) is str:
+            new_tree_children["value"] = new_children
+        else:
+            i = 0
+            while i < len(new_children):
+                child_diff = diff_asts(old_children[i], new_children[i])
+                ps = child_diff[0]
+                for p in ps:
+                    patches.append(p)
+                i += 1
+
+                new_tree_children["value"] = child_diff[1]
 
     # go through children
         # if new one missing
@@ -498,6 +506,7 @@ def render_app(store_name, store_content_json):
         def_local("new_asttt", f"inject_ids(FormSchema(window.{store_name}, '{store_content_json}'))"),
         def_local("[patches, new_ast_from_diff]", "old_asttt ? window.diff_asts(old_asttt, new_asttt) : false"),
         def_global("asttt", "new_ast_from_diff"),
+        log('patches, new_ast_from_diff'),
         progn("patches ? patch_dom(patches) : false"),
         def_local("html", f"render_element(window.asttt)"),
         # assign("document.querySelector('body').innerHTML", "html"),
