@@ -41,8 +41,12 @@ class PostForm(forms.ModelForm):
             ]
         }
         import json
-        Form = chp_build.FormSchema(store, json.dumps(store))
-        html = chp_build.render_element(Form, chp.context_middleware(ctx))
+        ast = chp_build.FormSchema(store, json.dumps(store))
+        form = chp_build.inject_ids(ast)
+        app = chp_build.Inject_ast_into_DOM(form, json.dumps(form))
+        html = chp_build.render_element(app, chp.context_middleware(ctx))
+        print(html)
+        print(form)
         return mark_safe(html)
 
     class Meta:

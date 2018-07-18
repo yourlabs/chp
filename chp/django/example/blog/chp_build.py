@@ -23,8 +23,9 @@ def context_middleware(context):
             return el
     return middleware
 
-def default_middleware(el):
+def default_middleware(el, _props = [], _children=[]):
     return el
+
 import math
 import random
 
@@ -111,6 +112,10 @@ def diff_asts(old, new):
 def render_html(el, props, child):
     name = el["name"]
 
+    children = ""
+    for c in child:
+        children += c
+
     props_str = ""
     for p in props:
         if p["name"] != "children":
@@ -121,42 +126,53 @@ def render_html(el, props, child):
         return f"<{name} {props_str} />"
     print('heey')
 
-    return f"<{name} {props_str}>{child}</{name}>"
+    return f"<{name} {props_str}>{children}</{name}>"
 
 def render_js(el, props, child):
     name = el["name"]
     props_str = ""
 
+    children = ""
+    for c in child:
+        children += c
+
     before=get_prop(props, "before")["value"]
     after=get_prop(props, "after")["value"]
 
-    return f"{before}{child}{after}"
+    return f"{before}{children}{after}"
 
-def render_ast(ast, ast_middleware, render_middleware):
-    ast = ast_middleware(ast)
-
+def id_middleware(ast):
     props = ast["props"]
     props.append({
         "name": "chp-id",
         "value": str(math.floor(random.random()*10000000))
     })
+    return ast
+
+
+def render_ast(ast, ast_middleware, render_middleware):
+    ast = ast_middleware(ast)
+
+    props = ast["props"]
 
     children = False
     for p in props:
         if p["name"] == "children":
             children = p["value"]
 
-    child = ""
+    child = []
     if not children:
         child = ""
     elif type(children) is str:
         child = children
     else:
         for c in children:
-            child += render_ast(c, ast_middleware, render_middleware)
+            child.append(render_ast(c, ast_middleware, render_middleware))
 
     return render_middleware(ast, props, child)
 
+def inject_ids(ast):
+    return render_ast(ast, id_middleware, default_middleware)
 
 def render_js_element(ast):
     return render_ast(ast, default_middleware, render_js)
@@ -436,17 +452,34 @@ def create_store(store_name, on_store_change, json_init_state):
         def_global(onchange_cb, def_func("f", "obj, prop", on_store_change)),
         def_global(
             store_name,
-            '!window.todoStore ? new Proxy(JSON.parse(\'' + json_init_state + '\'), { set: (obj, prop, value) => {obj[prop]=value;window.'+onchange_cb+'(obj, prop); return true } }) : window.todoStore'
+            "!window.todoStore ? new Proxy(JSON.parse('" + json_init_state + "'), { set: (obj, prop, value) => {obj[prop]=value;window."+onchange_cb+"(obj, prop); return true } }) : window.todoStore"
         ),
     ]
     ast = progn(code)
     js = render_js_element(ast)
     return js
 
+def patch_dom(patches):
+    for patch in patches:
+        type = patch["type"]
+        if type == "props":
+            props = patch["props"]
+            chp_id = patch["chp-id"]
+            for prop in props:
+                console.log(f"{chp_id}")
+                el = document["querySelector"](f"[chp-id='{chp_id}']")
+                el.setAttribute(prop["name"], prop["value"])
+
+
 def render_app(store_name, store_content_json):
     return progn([
-        def_local("str", f"render_ast(FormSchema(window.{store_name}, '{store_content_json}'), default_middleware, render_html)"),
-        assign("document.querySelector('body').innerHTML", "str"),
+        def_local("old_asttt", "window.asttt ? window.asttt : JSON.parse(document.querySelector(\"[chp-id='chp-ast']\").innerHTML)"),
+        def_local("new_asttt", f"inject_ids(FormSchema(window.{store_name}, '{store_content_json}'))"),
+        def_local("patches", "old_asttt ? window.diff_asts(old_asttt, new_asttt) : false"),
+        def_global("asttt", "new_asttt"),
+        progn("patches ? patch_dom(patches) : false"),
+        def_local("html", f"render_element(window.asttt)"),
+        # assign("document.querySelector('body').innerHTML", "html"),
         progn("eval(document.querySelector('body script').innerHTML);"),
     ])
 
@@ -551,8 +584,29 @@ def FormSchema(store_content, store_content_json):
             [
                 Script(create_store(store_name, store_change_cb, store_content_json)),
                 form,
-                Div([], reversed(todos)),
+                Div([], todos),
             ],
         )
 
     return render()
+
+def AST(json_ast):
+    children = json_ast
+    props = [
+        cp('style', 'display: none'),
+        cp('chp-id', 'chp-ast'),
+    ]
+    return Div(props, children)
+
+
+def injectAstIntoDOM(ast):
+    window.asttt = ast
+
+
+def Inject_ast_into_DOM(app, json_ast):
+    children = [
+        app,
+        AST(json_ast),
+        Script("window.asttt = JSON.parse(document.querySelector(\"[chp-id='chp-ast']\").innerHTML)"),
+    ]
+    return Div([], children)
