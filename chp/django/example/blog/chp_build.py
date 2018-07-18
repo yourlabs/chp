@@ -41,7 +41,7 @@ def diff_asts(old, new):
 
     if old_name != new_name:
         patches.append({
-            "type": "innerHTML",
+            "type": "replace-element",
             "chp-id": get_prop(old_props, "chp-id")["value"],
             "html": render_element(new),
         })
