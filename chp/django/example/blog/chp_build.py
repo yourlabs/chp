@@ -578,7 +578,6 @@ def FormSchema(store_content, store_content_json):
     store_name = "todoStore"
     store_change_cb = [
         render_app(store_name, store_content_json),
-        # progn("document.querySelector('#myInput').focus()"), # FIX => quick input focus had on rerender
     ]
 
     def add_todos():
