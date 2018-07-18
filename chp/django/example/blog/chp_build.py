@@ -94,11 +94,15 @@ def diff_asts(old, new):
 
     if len(new_children) != len(old_children):
         html = ""
-        for c in new_children:
-            html += render_element(c)
-            # new_tree
-            new_tree_children = get_prop('children', new_tree["props"]) # ref to new_tree's props
-            new_tree_children = get_prop('children', new["props"]) # now ref to new's props
+        if type(new_children) is str:
+            html = new_children
+        else:
+            for c in new_children:
+                html += render_element(c)
+                # new_tree
+                new_tree_children = get_prop('children', new_tree["props"]) # ref to new_tree's props
+                new_tree_children = get_prop('children', new["props"]) # now ref to new's props
+
 
         patches.append({
             "type": "innerHTML",
@@ -360,7 +364,7 @@ def Div(props, children):
 
 def Button(props, children):
     children = children or []
-    return ce('button', props, children)
+    return ce('div', props, children)
 
 def Script(string = ""):
     return ce('script', [], string)
@@ -476,14 +480,16 @@ def create_store(store_name, on_store_change, json_init_state):
 def patch_dom(patches):
     for patch in patches:
         type = patch["type"]
+        chp_id = patch["chp-id"]
         if type == "props":
             props = patch["props"]
-            chp_id = patch["chp-id"]
             for prop in props:
-                console.log(f"{chp_id}")
                 el = document["querySelector"](f"[chp-id='{chp_id}']")
                 if props["name"] != "chp-id":
                     el.setAttribute(prop["name"], prop["value"])
+        elif type == "innerHTML":
+            el = document["querySelector"](f"[chp-id='{chp_id}']")
+            el.innerHTML = patch["html"]
 
 
 def render_app(store_name, store_content_json):
@@ -491,7 +497,6 @@ def render_app(store_name, store_content_json):
         def_local("old_asttt", "window.asttt ? window.asttt : JSON.parse(document.querySelector(\"[chp-id='chp-ast']\").innerHTML)"),
         def_local("new_asttt", f"inject_ids(FormSchema(window.{store_name}, '{store_content_json}'))"),
         def_local("[patches, new_ast_from_diff]", "old_asttt ? window.diff_asts(old_asttt, new_asttt) : false"),
-        log('patches, new_ast_from_diff'),
         def_global("asttt", "new_ast_from_diff"),
         progn("patches ? patch_dom(patches) : false"),
         def_local("html", f"render_element(window.asttt)"),
@@ -559,7 +564,7 @@ def Input(value):
         cp('onkeyup', on_key_up),
         cp('id', 'myInput'),
         cp('value', value),
-        cp('onfocus', focus_hack)
+        # cp('onfocus', focus_hack)
     ]
     return ce('input', props, [])
 
@@ -567,7 +572,7 @@ def FormSchema(store_content, store_content_json):
     store_name = "todoStore"
     store_change_cb = [
         render_app(store_name, store_content_json),
-        progn("document.querySelector('#myInput').focus()"), # FIX => quick input focus had on rerender
+        # progn("document.querySelector('#myInput').focus()"), # FIX => quick input focus had on rerender
     ]
 
     def add_todos():
