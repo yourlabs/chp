@@ -94,7 +94,6 @@ def diff_asts(old, new):
     new_children =  nc["value"] if nc else []
     old_children =  oc["value"] if oc else []
 
-    console.log(new_children, old_children)
     if len(new_children) != len(old_children):
         html = ""
         if type(new_children) is str:
@@ -562,7 +561,7 @@ def TodoItem(name, todo_id):
     on_click = f"store_updates.remove_todo({todo_id})"
     props = [
         cp("id", todo_id),
-        cp("style", "margin: 1rem; height: 3rem; background-color: rgba(0, 0, 0, 0.2); border: 2px solid black"),
+        cp("style", "margin: 1rem; min-height: 3rem; background-color: rgba(0, 0, 0, 0.2); border: 2px solid black"),
         cp("onclick", on_click),
     ]
     return Div(props, name)
