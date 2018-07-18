@@ -85,7 +85,6 @@ def diff_asts(old, new):
             })
             new_tree = new
             new_tree["props"] = new_props
-            console.log(props_differ, new_tree)
         else:
             new_tree = old
 
@@ -95,17 +94,18 @@ def diff_asts(old, new):
     new_children =  nc["value"] if nc else []
     old_children =  oc["value"] if oc else []
 
+    console.log(new_children, old_children)
     if len(new_children) != len(old_children):
         html = ""
         if type(new_children) is str:
             html = new_children
         else:
+            new_tree_children = get_prop(new_tree["props"], 'children') # ref to new_tree's props
+            new_tree_children["value"] = []
             for c in new_children:
                 html += render_element(c)
                 # new_tree
-                new_tree_children = get_prop(new_tree["props"], 'children') # ref to new_tree's props
-                new_tree_children["value"] = get_prop(new["props"], 'children')["value"] # now ref to new's props
-
+                new_tree_children["value"].append(c)
 
         patches.append({
             "type": "innerHTML",
@@ -154,7 +154,6 @@ def render_html(el, props, child):
     self_closing_tags = ["input", "link", "img"]
     if name in self_closing_tags:
         return f"<{name} {props_str} />"
-    print('heey')
 
     return f"<{name} {props_str}>{children}</{name}>"
 
@@ -493,7 +492,6 @@ def patch_dom(patches):
     for patch in patches:
         type = patch["type"]
         chp_id = patch["chp-id"]
-        console.log(patch)
         if type == "props":
             props = patch["props"]
             for prop in props:
@@ -513,7 +511,6 @@ def render_app(store_name, store_content_json):
         def_local("new_asttt", f"inject_ids(FormSchema(window.{store_name}, '{store_content_json}'))"),
         def_local("[patches, new_ast_from_diff]", "old_asttt ? window.diff_asts(old_asttt, new_asttt) : false"),
         def_global("asttt", "new_ast_from_diff"),
-        log('patches, new_ast_from_diff'),
         progn("patches ? patch_dom(patches) : false"),
         def_local("html", f"render_element(window.asttt)"),
         # assign("document.querySelector('body').innerHTML", "html"),
@@ -593,7 +590,6 @@ def FormSchema(store_content, store_content_json):
         return f"store_updates.add_todo({store_name})"
 
     def render():
-        print(store_content["name"])
         form = Form([
             Cell([
                 Div(
