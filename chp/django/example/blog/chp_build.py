@@ -527,7 +527,7 @@ def render_app(store_name, store_content_json):
 
 def remove_todo(todo_id):
     todos = todoStore["todos"] or []
-    todos = list(filter(lambda t: parseInt(t["id"]) != todo_id, todos))
+    todos = list(filter(lambda t: parseFloat(t["id"]) != todo_id, todos))
     todoStore.todos = todos
 
 def update_todo_name():
@@ -537,7 +537,7 @@ def update_todo_name():
 def add_todo(todoStore):
     todos = todoStore.todos or []
     t = todos[:]
-    t.append({ "name" : todoStore["name"], "id": t.length})
+    t.append({ "name" : todoStore["name"], "id": str(random.random())})
     todoStore["todos"] = t
     todoStore["name"] = ""
 
@@ -569,14 +569,12 @@ def TodoItem(name, todo_id):
 
 def Input(value):
     on_key_up = "store_updates.update_todo_name()"
-    focus_hack = "(()=>{let value = this.value;this.value=\'\'; this.value = value})()"
 
     props = [
         cp('type', 'text'),
         cp('onkeyup', on_key_up),
         cp('id', 'myInput'),
         cp('value', value),
-        # cp('onfocus', focus_hack)
     ]
     return ce('input', props, [])
 
