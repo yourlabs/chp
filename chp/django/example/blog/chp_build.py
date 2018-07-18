@@ -15,6 +15,7 @@ def get_prop(props=[], name=[]):
 # in the case of this middleware, we inspect the type of el and call it with a context.
 # with this middlware a component can now return a function taking a context as argument and returning an el.
 def context_middleware(context):
+
     def middleware(el):
         if callable(el):
             return el(context)
@@ -24,9 +25,92 @@ def context_middleware(context):
 
 def default_middleware(el):
     return el
+import math
+import random
+
+
+def diff_asts(old, new):
+    patches = []
+    old_name = old["name"]
+    old_props = old["props"]
+    new_name = new["name"]
+    new_props = new["props"]
+
+    # if elements not same name
+        # request to patch innerHTML with chp-id of the old one
+
+    if old_name != new_name:
+        patches.append({
+            "type": "innerHTML",
+            "chp-id": get_prop(old_props, "chp-id")["value"],
+            "html": render_element(new),
+        })
+
+    # else
+        # go through props
+        # excluding children
+        # if props differ
+            # request patching with new props (but keep old chp-id)
+
+    else:
+        i = 0
+        props_differ = False
+        if len(old_props) != len(new_props):
+            props_differ = True
+
+        if not props_differ:
+            while i < len(new_props):
+                c1 = old_props[i]["name"] == new_props[i]["name"]
+                c2 = old_props[i]["value"] == new_props[i]["value"]
+                if not (c1 and c2):
+                    if new_props[i]["name"] != "children":
+                        if new_props[i]["name"] != "chp-id":
+                            props_differ = True
+                i += 1
+
+        if props_differ:
+            patches.append({
+                "type": "props",
+                "chp-id": get_prop(old_props, "chp-id")["value"],
+                "props" : new_props
+            })
+
+    nc = get_prop(new_props, "children")
+    oc = get_prop(old_props, "children")
+    new_children =  nc["value"] if nc else []
+    old_children =  oc["value"] if oc else []
+
+    if len(new_children) != len(old_children):
+        html = ""
+        for c in new_children:
+            html += render_element(c)
+
+        patches.append({
+            "type": "innerHTML",
+            "chp-id": get_prop(old_props, "chp-id")["value"],
+            "html": html,
+        })
+    else:
+        i = 0
+        while i < len(new_children):
+            ps = diff_asts(old_children[i], new_children[i])
+            for p in ps:
+                patches.append(p)
+            i += 1
+
+    # go through children
+        # if new one missing
+            # request deletion of old node (with chp-id)
+
+        # if old one missing
+            # request creation of new node
+
+    return patches
+
 
 def render_html(el, props, child):
     name = el["name"]
+
     props_str = ""
     for p in props:
         if p["name"] != "children":
@@ -52,6 +136,10 @@ def render_ast(ast, ast_middleware, render_middleware):
     ast = ast_middleware(ast)
 
     props = ast["props"]
+    props.append({
+        "name": "chp-id",
+        "value": str(math.floor(random.random()*10000000))
+    })
 
     children = False
     for p in props:
@@ -68,6 +156,7 @@ def render_ast(ast, ast_middleware, render_middleware):
             child += render_ast(c, ast_middleware, render_middleware)
 
     return render_middleware(ast, props, child)
+
 
 def render_js_element(ast):
     return render_ast(ast, default_middleware, render_js)
