@@ -32,6 +32,7 @@ import random
 
 def diff_asts(old, new):
     patches = []
+    new_tree = {}
     old_name = old["name"]
     old_props = old["props"]
     new_name = new["name"]
@@ -46,6 +47,9 @@ def diff_asts(old, new):
             "chp-id": get_prop(old_props, "chp-id")["value"],
             "html": render_element(new),
         })
+        new_tree = new
+        # id = get_prop('chp-id', new_tree["props"])
+        # id["value"] = get_prop('chp-id', new["props"])["value"]
 
     # else
         # go through props
@@ -70,11 +74,18 @@ def diff_asts(old, new):
                 i += 1
 
         if props_differ:
+            id = get_prop(new_props, "chp-id")
+            id["value"] = get_prop(old_props, "chp-id")["value"]
             patches.append({
                 "type": "props",
                 "chp-id": get_prop(old_props, "chp-id")["value"],
                 "props" : new_props
             })
+            new_tree = new
+            new_tree["props"] = new_props
+        else:
+            new_tree = old
+
 
     nc = get_prop(new_props, "children")
     oc = get_prop(old_props, "children")
@@ -85,6 +96,9 @@ def diff_asts(old, new):
         html = ""
         for c in new_children:
             html += render_element(c)
+            # new_tree
+            new_tree_children = get_prop('children', new_tree["props"]) # ref to new_tree's props
+            new_tree_children = get_prop('children', new["props"]) # now ref to new's props
 
         patches.append({
             "type": "innerHTML",
@@ -94,7 +108,7 @@ def diff_asts(old, new):
     else:
         i = 0
         while i < len(new_children):
-            ps = diff_asts(old_children[i], new_children[i])
+            ps = diff_asts(old_children[i], new_children[i])[0]
             for p in ps:
                 patches.append(p)
             i += 1
@@ -106,7 +120,7 @@ def diff_asts(old, new):
         # if old one missing
             # request creation of new node
 
-    return patches
+    return [patches, new_tree]
 
 
 def render_html(el, props, child):
@@ -468,15 +482,17 @@ def patch_dom(patches):
             for prop in props:
                 console.log(f"{chp_id}")
                 el = document["querySelector"](f"[chp-id='{chp_id}']")
-                el.setAttribute(prop["name"], prop["value"])
+                if props["name"] != "chp-id":
+                    el.setAttribute(prop["name"], prop["value"])
 
 
 def render_app(store_name, store_content_json):
     return progn([
         def_local("old_asttt", "window.asttt ? window.asttt : JSON.parse(document.querySelector(\"[chp-id='chp-ast']\").innerHTML)"),
         def_local("new_asttt", f"inject_ids(FormSchema(window.{store_name}, '{store_content_json}'))"),
-        def_local("patches", "old_asttt ? window.diff_asts(old_asttt, new_asttt) : false"),
-        def_global("asttt", "new_asttt"),
+        def_local("[patches, new_ast_from_diff]", "old_asttt ? window.diff_asts(old_asttt, new_asttt) : false"),
+        log('patches, new_ast_from_diff'),
+        def_global("asttt", "new_ast_from_diff"),
         progn("patches ? patch_dom(patches) : false"),
         def_local("html", f"render_element(window.asttt)"),
         # assign("document.querySelector('body').innerHTML", "html"),
@@ -536,7 +552,7 @@ def TodoItem(name, todo_id):
 
 def Input(value):
     on_key_up = "store_updates.update_todo_name()"
-    focus_hack = "(()=>{let value = this.value;this.value=''; this.value = value})()"
+    focus_hack = "(()=>{let value = this.value;this.value=\'\'; this.value = value})()"
 
     props = [
         cp('type', 'text'),
