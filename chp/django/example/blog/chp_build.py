@@ -489,12 +489,15 @@ def patch_dom(patches):
     for patch in patches:
         type = patch["type"]
         chp_id = patch["chp-id"]
+        console.log(patch)
         if type == "props":
             props = patch["props"]
             for prop in props:
                 el = document["querySelector"](f"[chp-id='{chp_id}']")
-                if props["name"] != "chp-id":
+                if prop["name"] != "chp-id":
                     el.setAttribute(prop["name"], prop["value"])
+                    if prop["name"] == "value": # value can't be set with setattr
+                        el["value"] = prop["value"]
         elif type == "innerHTML":
             el = document["querySelector"](f"[chp-id='{chp_id}']")
             el.innerHTML = patch["html"]
