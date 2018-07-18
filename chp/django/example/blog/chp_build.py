@@ -65,13 +65,15 @@ def diff_asts(old, new):
 
         if not props_differ:
             while i < len(new_props):
-                c1 = old_props[i]["name"] == new_props[i]["name"]
-                c2 = old_props[i]["value"] == new_props[i]["value"]
-                if not (c1 and c2):
+                c1 = old_props[i]["name"] != new_props[i]["name"]
+                c2 = old_props[i]["value"] != new_props[i]["value"]
+
+                if c1 or c2:
                     if new_props[i]["name"] != "children":
                         if new_props[i]["name"] != "chp-id":
                             props_differ = True
                 i += 1
+
 
         if props_differ:
             id = get_prop(new_props, "chp-id")
@@ -83,6 +85,7 @@ def diff_asts(old, new):
             })
             new_tree = new
             new_tree["props"] = new_props
+            console.log(props_differ, new_tree)
         else:
             new_tree = old
 
@@ -111,10 +114,11 @@ def diff_asts(old, new):
         })
     else:
         new_tree_children = get_prop(new_tree["props"], 'children') # ref to new_tree's props
-        new_tree_children = get_prop(new["props"], 'children') # ref to new_tree's props
+        new_tree_children["value"] = get_prop(new["props"], 'children')["value"] # ref to new_tree's props
         if type(new_children) is str:
             new_tree_children["value"] = new_children
         else:
+            new_tree_children["value"] = []
             i = 0
             while i < len(new_children):
                 child_diff = diff_asts(old_children[i], new_children[i])
@@ -123,7 +127,7 @@ def diff_asts(old, new):
                     patches.append(p)
                 i += 1
 
-                new_tree_children["value"] = child_diff[1]
+                new_tree_children["value"].append(child_diff[1])
 
     # go through children
         # if new one missing
@@ -589,6 +593,7 @@ def FormSchema(store_content, store_content_json):
         return f"store_updates.add_todo({store_name})"
 
     def render():
+        print(store_content["name"])
         form = Form([
             Cell([
                 Div(
