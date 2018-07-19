@@ -1,0 +1,17 @@
+{
+  "name": "chp-django-example",
+  "version": "1.0.0",
+  "description": "Node module for the example project in chp.django",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack-cli"
+  },
+  "dependencies": {
+    "webpack": "^4.16.1"
+  },
+  "devDependencies": {
+    "batavia": "^3.4.0-dev5",
+    "py-loader": "^0.3.1"
+  }
+}

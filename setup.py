@@ -24,6 +24,9 @@ setup(
     keywords='html',
     tests_require=['tox'],
     extras_require=dict(
+        cli=[
+          'click',
+        ],
         dev=[
           'django>2.1',
         ],
@@ -31,6 +34,7 @@ setup(
     entry_points={
         'console_scripts': [
             'chp-django = chp.django.example.manage:main',
+            'chp = chp.cli:main',
         ],
     },
     classifiers=[
