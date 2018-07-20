@@ -28,26 +28,106 @@ def module_file(name):
     return getattr(mod, '__file__', None)
 
 
+class TreeWalk(TreeWalk):
+    @classmethod
+    def from_module(cls, module):
+        return cls.from_path(Dependency(module).path)
+
+    @classmethod
+    def from_path(cls, path):
+        with open(path, 'r') as f:
+            content = f.read()
+        return cls.from_content(content)
+
+    @classmethod
+    def from_content(cls, content):
+        parsed = ast.parse(content)
+        tree = cls()
+        tree.walk(parsed)
+        return tree
+
+
 class ImportWalker(TreeWalk):
     def init_imports(self):
-        self.imports = []
+        self.imports = Dependencies()
 
     def post_ImportFrom(self):
         self.imports.append(self.cur_node.module)
 
     def post_Import(self):
         for name in self.cur_node.names:
-            self.imports.append(name.name)
+            if name.name not in self.imports:
+                self.imports.append(name.name)
+
+
+class Path(str):
+    @property
+    def dependencies(self):
+        if not self:
+            return Dependencies()
+
+        tree = ImportWalker.from_path(self)
+        results = Dependencies(tree.imports)
+        for result in tree.imports:
+            for sub in Dependency(result).dependencies:
+                results.append(sub)
+
+        return results
+
+
+class Dependency(str):
+    @property
+    def path(self):
+        if self in IMPORT_SAFE:
+            return Path()
+
+        parts = self.split('.')
+        mod = None
+        while mod is None:
+            if not parts:
+                return Path()
+
+            try:
+                mod = imp.importlib.import_module('.'.join(parts))
+            except ImportError:
+                parts.pop()
+
+        return Path(getattr(mod, '__file__', None))
+
+    @property
+    def dependencies(self):
+        return self.path.dependencies
 
 
 class Dependencies(list):
+    @classmethod
+    def factory(cls, path=None):
+        with open(path, 'r') as f:
+            content = f.read()
+
+        parsed = ast.parse(content)
+        tree = ImportWalker()
+        tree.walk(parsed)
+
+        instance = cls()
+        for i in tree.imports:
+            instance.append(i)
+        return instance
+
     def append(self, value):
+        if value in IMPORT_SAFE:
+            return
+
+        if not isinstance(value, Dependency):
+            value = Dependency(value)
+
         try:
             position = self.index(value)
         except ValueError:
             pass
         else:
             self.pop(position)
+
         return super().append(value)
 
 
@@ -71,7 +151,9 @@ def dependencies(path, results=None):
             continue
         f = module_file(i)
         if f and f.endswith('.py') and f not in results:
+            print(f'{path} requires {i} resolving to {f}')
             new_results.append(f)
+            results.append(f)
 
     for result in new_results:
         dependencies(result, results)
@@ -157,7 +239,7 @@ class GlobalizeDeclaresTreeWalk(GlobalizeImportsTreeWalk):
             return True
 
 
-def old_generate(path):
+def generate(path):
     with open(path, 'r') as f:
         script = f.read()
     sys.path.append(os.path.dirname(path))

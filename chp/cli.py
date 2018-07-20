@@ -14,8 +14,8 @@ def cli():
               help='The python script to bundle for conversion to js')
 def dependencies(entry_point):
     """List dependencies of a single file."""
-    result = bundle.dependencies(os.path.abspath(entry_point))
-    click.echo('\n'.join(result))
+    for result in bundle.Path(entry_point).dependencies:
+        click.echo(f'{result}: {result.path}')
 
 
 @click.command()
