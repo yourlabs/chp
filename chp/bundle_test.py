@@ -1,3 +1,4 @@
+import ast
 import pytest
 import os
 import shutil
@@ -9,6 +10,7 @@ from chp import bundle
 JS_PATH = os.path.join(os.path.dirname(__file__), 'js.py')
 TEST_PATH = os.path.join(os.path.dirname(__file__), 'tests', 'test_module')
 TEST_MODULE = 'chp.tests.test_module'
+TEST_MODULE_GLOBALIZE = '___' + TEST_MODULE.replace('.', '__')
 ENTRY_PATH = os.path.join(TEST_PATH, 'entry.py')
 
 
@@ -26,13 +28,13 @@ def test_Dependency_path_for_module_name(fixture):
 def test_Dependency_dependencies():
     scenario(f'import {TEST_MODULE}.a', a='b = 2')
     result = bundle.Dependency(f'{TEST_MODULE}.entry').dependencies
-    assert list(result) == ['chp.tests.test_module.a']
+    assert result.names == ['chp.tests.test_module.a']
 
 
 def test_Dependencies_factory_path():
     scenario(f'import {TEST_MODULE}.a', a='b = 2')
-    dependencies = bundle.Dependencies.factory(ENTRY_PATH)
-    assert list(dependencies) == ['chp.tests.test_module.a']
+    result = bundle.Dependencies.factory(ENTRY_PATH)
+    assert result.names == ['chp.tests.test_module.a']
 
 
 def test_Dependencies_recursive():
@@ -42,7 +44,7 @@ def test_Dependencies_recursive():
         b=f'import math',
     )
     result = bundle.Dependency(f'{TEST_MODULE}.entry').dependencies
-    assert list(result) == [
+    assert result.names == [
         'chp.tests.test_module.a',
         'chp.tests.test_module.b',
     ]
@@ -56,11 +58,65 @@ def test_Dependencies_reorder():
         c=f'import math',
     )
     result = bundle.Dependency(f'{TEST_MODULE}.entry').dependencies
-    assert list(result) == [
+    assert result.names == [
         'chp.tests.test_module.b',
         'chp.tests.test_module.a',
         'chp.tests.test_module.c',
     ]
+
+
+@pytest.mark.parametrize('code,expected', [
+    ('a.b', f'{TEST_MODULE_GLOBALIZE}__a__b'),
+    ('a.b()', f'{TEST_MODULE_GLOBALIZE}__a__b()'),
+    ('a.b.c', f'{TEST_MODULE_GLOBALIZE}__a__b.c'),
+])
+def test_globalize_imports_from_attribute(code, expected):
+    scenario(
+        f'from {TEST_MODULE} import a; {code}',
+    )
+    tree = bundle.GlobalizeImports.from_path(ENTRY_PATH)
+    assert tree.to_source() == expected
+
+
+def test_get_attribute_name():
+    expr = ast.parse('chp.tests.a').body[0].value
+    assert bundle.get_attribute_name(expr) == 'chp.tests.a'
+
+
+@pytest.mark.parametrize('code,expected', [
+    (f'{TEST_MODULE}.a.b', f'{TEST_MODULE_GLOBALIZE}__a__b'),
+])
+def test_globalize_imports_attribute(code, expected):
+    scenario(
+        f'import {TEST_MODULE}.a; {code}',
+    )
+    tree = bundle.GlobalizeImports.from_path(ENTRY_PATH)
+    assert tree.to_source() == expected
+
+
+def test_generate():
+    return
+    scenario(
+        f'''
+from {TEST_MODULE}.a import A
+class x(A):
+    def echo(self, A):
+        print(A)
+        '''.strip(),
+        a=f'''
+class A:
+    pass
+        '''.strip(),
+    )
+    result = bundle.generate(ENTRY_PATH)
+    print(result)
+    assert result == '''
+class ___a_A:
+    pass
+
+class x(___a_A):
+    pass
+'''.strip()
 
 
 def scenario(entry=None, **files):

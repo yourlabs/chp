@@ -17,6 +17,18 @@ IMPORT_SAFE = (
 )
 
 
+def get_attribute_name(node):
+    result = []
+    while getattr(node, 'value', None):
+        attr = getattr(node, 'attr', None)
+
+        if node.attr:
+            result.append(node.attr)
+            node = node.value
+    result.append(node.id)
+    return '.'.join(reversed(result))
+
+
 def module_file(name):
     parts = name.split('.')
     mod = None
@@ -41,23 +53,53 @@ class TreeWalk(TreeWalk):
 
     @classmethod
     def from_content(cls, content):
-        parsed = ast.parse(content)
+        return cls.from_ast(ast.parse(content))
+
+    @classmethod
+    def from_ast(cls, ast):
         tree = cls()
-        tree.walk(parsed)
+        tree.ast = ast
+        tree.walk(ast)
         return tree
+
+    def to_source(self):
+        return astor.to_source(self.ast).strip()
 
 
 class ImportWalker(TreeWalk):
     def init_imports(self):
         self.imports = Dependencies()
 
-    def post_ImportFrom(self):
-        self.imports.append(self.cur_node.module)
+    def init_targets(self):
+        self.targets = dict()
 
     def post_Import(self):
         for name in self.cur_node.names:
-            if name.name not in self.imports:
-                self.imports.append(name.name)
+            module = name.name
+            target = name.asname or name.name
+            if module not in self.imports:
+                self.imports.append(module)
+            self.targets[target] = module
+
+
+    def post_ImportFrom(self):
+        self.imports.append(self.cur_node.module)
+
+        for name in self.cur_node.names:
+            target = name.asname or name.name
+            if target == '*':
+                importable = f'{self.cur_node.level*"."}{self.cur_node.module}'
+                if self.cur_node.level:
+                    raise Exception(
+                        f'chp does not support relative imports: {importable}'
+                    )
+                mod = imp.importlib.import_module(importable)
+                for name in mod.__dict__.keys():
+                    if name.startswith('__'):
+                        continue
+                    self.targets[name] = f'{importable}.{name}'
+            else:
+                self.targets[target] = self.cur_node.module
 
 
 class Path(str):
@@ -69,19 +111,26 @@ class Path(str):
         tree = ImportWalker.from_path(self)
         results = Dependencies(tree.imports)
         for result in tree.imports:
-            for sub in Dependency(result).dependencies:
+            for sub in result.dependencies:
                 results.append(sub)
 
         return results
 
 
-class Dependency(str):
+class Dependency(object):
+    def __init__(self, name, target=None):
+        self.target = target or name
+        self.name = name
+
+    def __str__(self):
+        return self.name
+
     @property
     def path(self):
-        if self in IMPORT_SAFE:
+        if self.name in IMPORT_SAFE:
             return Path()
 
-        parts = self.split('.')
+        parts = self.name.split('.')
         mod = None
         while mod is None:
             if not parts:
@@ -114,12 +163,21 @@ class Dependencies(list):
             instance.append(i)
         return instance
 
-    def append(self, value):
-        if value in IMPORT_SAFE:
-            return
+    @property
+    def names(self):
+        return [d.name for d in self]
 
+    def index(self, value):
         if not isinstance(value, Dependency):
             value = Dependency(value)
+        return self.names.index(value.name)
+
+    def append(self, value):
+        if not isinstance(value, Dependency):
+            value = Dependency(value)
+
+        if value.name in IMPORT_SAFE:
+            return
 
         try:
             position = self.index(value)
@@ -159,6 +217,29 @@ def dependencies(path, results=None):
         dependencies(result, results)
 
     return results
+
+
+class GlobalizeImports(ImportWalker):
+    def delete(self):
+        """Delete a node after first checking integrity of node stack."""
+        return self.parent.pop(self.parent.index(self.cur_node))
+
+    def post_ImportFrom(self):
+        ImportWalker.post_ImportFrom(self)
+        self.delete()
+
+    def post_Import(self):
+        ImportWalker.post_Import(self)
+        self.delete()
+
+    def post_Attribute(self):
+        name = getattr(self.cur_node.value, 'id', None)
+        if name in self.targets:
+            fixed = self.targets[name].replace('.', '__')
+            self.replace(ast.Name(
+                f'___{fixed}__{name}__{self.cur_node.attr}',
+                ast.Load()
+            ))
 
 
 class GlobalizeImportsTreeWalk(TreeWalk):
@@ -239,6 +320,11 @@ class GlobalizeDeclaresTreeWalk(GlobalizeImportsTreeWalk):
             return True
 
 
+def globalize_imports(path):
+    tree = GlobalizeImportsTreeWalk.from_path(path)
+    return tree.to_source()
+
+
 def generate(path):
     with open(path, 'r') as f:
         script = f.read()
@@ -247,24 +333,18 @@ def generate(path):
     tree = GlobalizeImportsTreeWalk()
     tree.walk(parsed)
     source = [astor.to_source(parsed)]
-    files = set()
-    for i in set(tree.imports.values()):
-        parts = i.split('.')
-        mod = None
-        while mod is None:
-            try:
-                mod = imp.importlib.import_module('.'.join(parts))
-            except ImportError:
-                parts.pop()
-        files.add(('___' + '__'.join(parts), mod.__file__))
 
-    for prefix, path in files:
-        with open(path, 'r') as f:
+    for dep in Path(path).dependencies:
+        if not dep.path:
+            continue
+
+        prefix = '___' + dep.path.replace('.', '__') + '__'
+        with open(dep.path, 'r') as f:
             script = f.read()
         parsed = ast.parse(script)
         tree = GlobalizeDeclaresTreeWalk()
         tree.prefix = prefix
         tree.walk(parsed)
-        source.insert(0, astor.to_source(parsed))
+        source.append(astor.to_source(parsed))
 
-    return '\n'.join(source)
+    return '\n'.join(reversed(source))
