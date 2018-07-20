@@ -11,7 +11,7 @@ import os
 import sys
 
 
-class ChpTreeWalk(TreeWalk):
+class GlobalizeImportsTreeWalk(TreeWalk):
     def init_imports(self):
         self.imports = dict()
 
@@ -69,6 +69,36 @@ class ChpTreeWalk(TreeWalk):
     def post_Name(self):
         if self.cur_node.id in self.imports:
             self.cur_node.id = '___' + self.imports[self.cur_node.id].replace('.', '__')
+            return True
+
+
+class GlobalizeDeclaresTreeWalk(GlobalizeImportsTreeWalk):
+    def init_renames(self):
+        self.renames = dict()
+
+    def post_FunctionDef(self):
+        new_name = f'{self.prefix}__{self.cur_node.name}'
+        self.renames[self.cur_node.name] = new_name
+        self.cur_node.name = new_name
+
+    def post_Name(self):
+        if GlobalizeImportsTreeWalk.post_Name(self):
+            return
+
+        name = self.cur_node.id
+        if name and name in self.renames.keys():
+            self.cur_node.id = self.renames[name]
+            return True
+
+        if isinstance(self.parent, ast.Assign):
+            import ipdb; ipdb.set_trace()
+
+    '''
+    def post_Call(self):
+        name = getattr(self.cur_node.func, 'id', None)
+        if name and name in self.renames.keys():
+            self.cur_node.func.id = self.renames[name]
+    '''
 
 
 def generate(path):
@@ -76,11 +106,28 @@ def generate(path):
         script = f.read()
     sys.path.append(os.path.dirname(path))
     parsed = ast.parse(script)
-    tree = ChpTreeWalk()
+    tree = GlobalizeImportsTreeWalk()
     tree.walk(parsed)
     source = [astor.to_source(parsed)]
+    files = set()
     for i in set(tree.imports.values()):
         print(i)
-        imp.importlib.import_module(i)
-        import ipdb; ipdb.set_trace()
+        parts = i.split('.')
+        mod = None
+        while mod is None:
+            try:
+                mod = imp.importlib.import_module('.'.join(parts))
+            except ImportError:
+                parts.pop()
+        files.add(('___' + '__'.join(parts), mod.__file__))
+
+    for prefix, path in files:
+        with open(path, 'r') as f:
+            script = f.read()
+        parsed = ast.parse(script)
+        tree = GlobalizeDeclaresTreeWalk()
+        tree.prefix = prefix
+        tree.walk(parsed)
+        source.insert(0, astor.to_source(parsed))
+
     return '\n'.join(source)
