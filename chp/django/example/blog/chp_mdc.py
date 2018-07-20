@@ -7,23 +7,27 @@ Div = chp_html.Div
 def Grid(children):
     children = children or []
     props = [
+        cp('class', 'mdc-layout-grid')
+    ]
+    return Div(props, children)
+
+def GridInner(children):
+    children = children or []
+    props = [
         cp('class', 'mdc-layout-grid__inner')
+    ]
+    return Div(props, children)
+
+def Cell(span, children):
+    children = children or []
+    props = [
+        cp('class', 'mdc-layout-grid__cell--span-' + span)
     ]
     return Div(props, children)
 
 def Row(children):
     children = children or []
-    props = [
-        cp('class', 'mdc-layout-grid__inner')
-    ]
-    return Div(props, children)
-
-def Cell(children):
-    children = children or []
-    props = [
-        cp('class', 'mdc-layout-grid__cell')
-    ]
-    return Div(props, children)
+    return Cell("12", children)
 
 def Field(children):
     children = children or []

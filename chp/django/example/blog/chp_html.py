@@ -9,7 +9,7 @@ def Div(props, children):
 
 def Button(props, children):
     children = children or []
-    return ce('div', props, children)
+    return ce('button', props, children)
 
 def Input(props):
     children = []
