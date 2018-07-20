@@ -11,6 +11,74 @@ import os
 import sys
 
 
+IMPORT_SAFE = (
+    'math',
+    'random',
+)
+
+
+def module_file(name):
+    parts = name.split('.')
+    mod = None
+    while mod is None:
+        try:
+            mod = imp.importlib.import_module('.'.join(parts))
+        except ImportError:
+            parts.pop()
+    return getattr(mod, '__file__', None)
+
+
+class ImportWalker(TreeWalk):
+    def init_imports(self):
+        self.imports = []
+
+    def post_ImportFrom(self):
+        self.imports.append(self.cur_node.module)
+
+    def post_Import(self):
+        for name in self.cur_node.names:
+            self.imports.append(name.name)
+
+
+class Dependencies(list):
+    def append(self, value):
+        try:
+            position = self.index(value)
+        except ValueError:
+            pass
+        else:
+            self.pop(position)
+        return super().append(value)
+
+
+def dependencies(path, results=None):
+    path = os.path.abspath(path)
+
+    if results:
+        results.append(path)
+    else:
+        results = Dependencies([path])
+
+    with open(path, 'r') as f:
+        content = f.read()
+    parsed = ast.parse(content)
+
+    tree = ImportWalker()
+    tree.walk(parsed)
+    new_results = []
+    for i in tree.imports:
+        if i in IMPORT_SAFE:
+            continue
+        f = module_file(i)
+        if f and f.endswith('.py') and f not in results:
+            new_results.append(f)
+
+    for result in new_results:
+        dependencies(result, results)
+
+    return results
+
+
 class GlobalizeImportsTreeWalk(TreeWalk):
     def init_imports(self):
         self.imports = dict()
@@ -61,9 +129,7 @@ class GlobalizeImportsTreeWalk(TreeWalk):
         elif self.cur_node.value.id.startswith('___'):
             global_name = '__'.join([self.cur_node.value.id, self.cur_node.attr])
         else:
-            print('Passing on', astor.to_source(self.cur_node))
             return
-        print(with_attribute, '->', global_name)
         self.replace(ast.Name(id=global_name, ctx=ast.Load()))
 
     def post_Name(self):
@@ -90,18 +156,8 @@ class GlobalizeDeclaresTreeWalk(GlobalizeImportsTreeWalk):
             self.cur_node.id = self.renames[name]
             return True
 
-        if isinstance(self.parent, ast.Assign):
-            import ipdb; ipdb.set_trace()
 
-    '''
-    def post_Call(self):
-        name = getattr(self.cur_node.func, 'id', None)
-        if name and name in self.renames.keys():
-            self.cur_node.func.id = self.renames[name]
-    '''
-
-
-def generate(path):
+def old_generate(path):
     with open(path, 'r') as f:
         script = f.read()
     sys.path.append(os.path.dirname(path))
@@ -111,7 +167,6 @@ def generate(path):
     source = [astor.to_source(parsed)]
     files = set()
     for i in set(tree.imports.values()):
-        print(i)
         parts = i.split('.')
         mod = None
         while mod is None:
