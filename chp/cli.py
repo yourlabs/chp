@@ -33,7 +33,12 @@ def generate(entry_point):
     """Bundle a python script with dependencies into a single file."""
     source = [bundle.GlobalizeImports.from_path(entry_point).to_source()]
     for result in bundle.Path(entry_point).dependencies:
-        source.append(bundle.GlobalizeImports.from_path(result.path).to_source())
+        source.append(
+            bundle.GlobalizeDeclares.from_path(
+                result.path,
+                prefix=result.globalized,
+            ).to_source()
+        )
     click.echo('\n'.join(reversed(source)))
 
 cli.add_command(dependencies)

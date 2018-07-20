@@ -42,23 +42,25 @@ def module_file(name):
 
 class TreeWalk(TreeWalk):
     @classmethod
-    def from_module(cls, module):
-        return cls.from_path(Dependency(module).path)
+    def from_module(cls, module, **kwargs):
+        return cls.from_path(Dependency(module).path, **kwargs)
 
     @classmethod
-    def from_path(cls, path):
+    def from_path(cls, path, **kwargs):
         with open(path, 'r') as f:
             content = f.read()
-        return cls.from_content(content)
+        return cls.from_content(content, **kwargs)
 
     @classmethod
-    def from_content(cls, content):
-        return cls.from_ast(ast.parse(content))
+    def from_content(cls, content, **kwargs):
+        return cls.from_ast(ast.parse(content), **kwargs)
 
     @classmethod
-    def from_ast(cls, ast):
+    def from_ast(cls, ast, **kwargs):
         tree = cls()
         tree.ast = ast
+        for key, value in kwargs.items():
+            setattr(tree, key, value)
         tree.walk(ast)
         return tree
 
@@ -146,6 +148,10 @@ class Dependency(object):
     def dependencies(self):
         return self.path.dependencies
 
+    @property
+    def globalized(self):
+        return '___' + self.name.replace('.', '__')
+
 
 class Dependencies(list):
     @classmethod
@@ -223,9 +229,6 @@ class GlobalizeImports(ImportWalker):
         """Delete a node after first checking integrity of node stack."""
         return self.parent.pop(self.parent.index(self.cur_node))
 
-    def init_scope(self):
-        self.scope = []
-
     def post_ImportFrom(self):
         ImportWalker.post_ImportFrom(self)
         self.delete()
@@ -246,27 +249,62 @@ class GlobalizeImports(ImportWalker):
             ))
 
     def post_Name(self):
-        if self.cur_node.id in self.scope:
+        if self.scope and self.cur_node.id in self.scope_args:
             return
 
         if self.cur_node.id in self.targets:
             self.cur_node.id = '___' + self.targets[self.cur_node.id].replace('.', '__')
             return True
 
-    def pre_Lambda(self):
-        for arg in self.cur_node.args.args:
-            self.scope.append(arg.arg)
+    @property
+    def scope(self):
+        scopes = ['FunctionDef', 'Lambda']
+        i = len(self.nodestack) - 1
+        while i:
+            node = self.nodestack[i][0]
+            if type(node).__name__ in scopes:
+                return node
+            i -= 1
 
-    def post_Lambda(self):
-        self.scope = []
+    @property
+    def scope_args(self):
+        return [arg.arg for arg in self.scope.args.args]
+
+
+class GlobalizeDeclares(GlobalizeImports):
+    def init_renames(self):
+        self.renames = dict()
+
+    def post_Assign(self):
+        if self.scope:
+            return
+
+        for name in self.cur_node.targets:
+            if not hasattr(name, 'id'):
+                continue
+            if self.scope and name.id in self.scope_args:
+                continue
+            new_name = f'{self.prefix}__{name.id}'
+            self.renames[name.id] = new_name
+            name.id = new_name
 
     def pre_FunctionDef(self):
-        for arg in self.cur_node.args.args:
-            self.scope.append(arg.arg)
+        if self.scope and self.cur_node.name in self.scope_args:
+            return
 
-    def post_FunctionDef(self):
-        self.scope = []
+        new_name = f'{self.prefix}__{self.cur_node.name}'
+        self.renames[self.cur_node.name] = new_name
+        self.cur_node.name = new_name
+    pre_ClassDef = pre_FunctionDef
 
+    def post_Name(self):
+        if GlobalizeImports.post_Name(self):
+            return
+
+        name = self.cur_node.id
+        if name and name in self.renames.keys():
+            self.cur_node.id = self.renames[name]
+            return True
 
 '''
 OLD CODE, remove soon

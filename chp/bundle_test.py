@@ -157,6 +157,32 @@ def test_resist_shadow_import_func(code, s):
 '''.strip()
 
 
+def test_globalize_declares(s):
+    s(
+        'a',
+        'def foo():',
+        '    bar=1',
+        '    foo()',
+        'bar=2',
+        'class X:',
+        '    pass'
+    )
+    tree = bundle.GlobalizeDeclares.from_path(
+        f'{s.path}/a.py', prefix='__prefix')
+    assert tree.to_source() == f'''
+def __prefix__foo():
+    bar = 1
+    __prefix__foo()
+
+
+__prefix__bar = 2
+
+
+class __prefix__X:
+    pass
+'''.strip()
+
+
 @pytest.fixture
 def s():
     s = Scenario()
