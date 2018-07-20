@@ -1,5 +1,6 @@
 from django import forms
 
+from . import chp_build
 from .models import Post
 from django.utils.safestring import mark_safe
 
