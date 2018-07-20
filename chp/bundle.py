@@ -81,13 +81,12 @@ class ImportWalker(TreeWalk):
                 self.imports.append(module)
             self.targets[target] = module
 
-
     def post_ImportFrom(self):
         self.imports.append(self.cur_node.module)
 
         for name in self.cur_node.names:
             target = name.asname or name.name
-            if target == '*':
+            if name.name == '*':
                 importable = f'{self.cur_node.level*"."}{self.cur_node.module}'
                 if self.cur_node.level:
                     raise Exception(
@@ -99,7 +98,7 @@ class ImportWalker(TreeWalk):
                         continue
                     self.targets[name] = f'{importable}.{name}'
             else:
-                self.targets[target] = self.cur_node.module
+                self.targets[target] = f'{self.cur_node.module}.{name.name}'
 
 
 class Path(str):
@@ -224,6 +223,9 @@ class GlobalizeImports(ImportWalker):
         """Delete a node after first checking integrity of node stack."""
         return self.parent.pop(self.parent.index(self.cur_node))
 
+    def init_scope(self):
+        self.scope = []
+
     def post_ImportFrom(self):
         ImportWalker.post_ImportFrom(self)
         self.delete()
@@ -232,14 +234,42 @@ class GlobalizeImports(ImportWalker):
         ImportWalker.post_Import(self)
         self.delete()
 
-    def post_Attribute(self):
-        name = getattr(self.cur_node.value, 'id', None)
-        if name in self.targets:
-            fixed = self.targets[name].replace('.', '__')
+    def pre_Attribute(self):
+        name = astor.to_source(self.cur_node).strip()
+        left = '.'.join(name.split('.')[:-1])
+        right = name.split('.')[-1]
+        if left in self.targets:
+            fixed = f'{self.targets[left]}'.replace('.', '__')
             self.replace(ast.Name(
-                f'___{fixed}__{name}__{self.cur_node.attr}',
+                f'___{fixed}__{right}',
                 ast.Load()
             ))
+
+    def post_Name(self):
+        if self.cur_node.id in self.scope:
+            return
+
+        if self.cur_node.id in self.targets:
+            self.cur_node.id = '___' + self.targets[self.cur_node.id].replace('.', '__')
+            return True
+
+    def pre_Lambda(self):
+        for arg in self.cur_node.args.args:
+            self.scope.append(arg.arg)
+
+    def post_Lambda(self):
+        self.scope = []
+
+    def pre_FunctionDef(self):
+        for arg in self.cur_node.args.args:
+            self.scope.append(arg.arg)
+
+    def post_FunctionDef(self):
+        self.scope = []
+
+
+'''
+OLD CODE, remove soon
 
 
 class GlobalizeImportsTreeWalk(TreeWalk):
@@ -348,3 +378,4 @@ def generate(path):
         source.append(astor.to_source(parsed))
 
     return '\n'.join(reversed(source))
+'''
