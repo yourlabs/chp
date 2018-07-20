@@ -1,5 +1,3 @@
-from . import chp_build
-
 from django import forms
 
 from .models import Post

@@ -28,7 +28,13 @@ setup(
           'click',
         ],
         dev=[
-          'django>2.1',
+          'django>=2.1rc1',
+        ],
+        test=[
+            'pytest',
+            'pytest-django',
+            'pytest-mock',
+            'mock',
         ],
     ),
     entry_points={
