@@ -3,6 +3,13 @@ from chp import bundle
 import click
 import os
 
+try:
+    import django
+except ImportError:
+    django = None
+
+if 'DJANGO_SETTINGS_MODULE' in os.environ and django:
+    django.setup()
 
 @click.group()
 def cli():

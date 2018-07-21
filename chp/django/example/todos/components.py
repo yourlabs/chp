@@ -1,4 +1,4 @@
-from chp.components import *
+from chp.chp import *
 
 
 def SubmitButton(name, on_click):

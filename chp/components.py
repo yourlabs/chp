@@ -1,3 +1,6 @@
+from chp.pyreact import *
+
+
 def Div(props, children):
     children = children or []
     return ce('div', props, children)

@@ -12,7 +12,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'chp.django',  # management command
     'chp.django.example.blog',
+    'chp.django.example.todos',
 ]
 
 DATABASES = {

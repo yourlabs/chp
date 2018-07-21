@@ -8,7 +8,8 @@
     "start": "webpack-cli"
   },
   "dependencies": {
-    "webpack": "^4.16.1"
+    "webpack": "^4.16.1",
+    "webpack-cli": "^3.1.0"
   },
   "devDependencies": {
     "batavia": "^3.4.0-dev5",

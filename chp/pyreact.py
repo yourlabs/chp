@@ -1,4 +1,3 @@
-
 def get_prop(props=[], name=[]):
     for p in props:
         try:

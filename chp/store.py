@@ -1,3 +1,6 @@
+from chp.components import *
+from chp.js import *
+
 
 def create_store(store_name, on_store_change, json_init_state):
     onchange_cb = store_name + "_cb"
