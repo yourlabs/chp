@@ -1,5 +1,7 @@
-const { spawnSync } = require('child_process');
+
 var path = require('path')
+/*
+const { spawnSync } = require('child_process');
 var fs = require('fs');
 const child = spawnSync('chp',
   ['generate', '--entry-point', 'webpack.entry.py'], {maxBuffer: 20000*1024}
@@ -9,10 +11,11 @@ fs.writeFile('webpack_bundle.py', child.stdout, function(err) {
       return console.log(err);
   }
 });
+*/
 
 module.exports = {
   mode: 'development',
-  entry: './webpack_bundle.py',
+  entry: './webpack_entry.py',
   output: {
     filename: 'todos.js',
     path: path.resolve(__dirname, 'todos/static')
