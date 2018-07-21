@@ -98,9 +98,9 @@ firefox output.html
 
 To run the example project:
 - pip install --user --editable path/to/chp[dev]
+- yarn install; yarn start
 - chp-django runserver
 - py.test path/to/chp
-- run chp --help for help with chp CLI
 
 #+begin_src python
 import chp
