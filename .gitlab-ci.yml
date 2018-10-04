@@ -1,0 +1,17 @@
+variables:
+  DJANGO_SETTINGS_MODULE: chp.django.example.settings
+  DEBUG: 1
+
+#activate the following when we cleanup the code
+#py-qa:
+#  stage: build
+#  image: yourlabs/python
+#  script: flake8 --show-source --max-complexity=8 --ignore=E305 chp
+
+py-test:
+  stage: test
+  image: yourlabs/python
+  script:
+  - pip3 install django crudlfap
+  - pip3 install -e .
+  - py.test --cov chp
