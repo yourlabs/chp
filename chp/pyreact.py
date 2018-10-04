@@ -5,20 +5,20 @@ def get_prop(props=[], name=[]):
                 return p
         except KeyError:
             return None
-
-# returns a middleware. a middleware is a function that takes and ast element and returns an other ast element
-# in the case of this middleware, we inspect the type of el and call it with a context.
-# with this middlware a component can now return a function taking a context as argument and returning an el.
+# Returns a middleware: a function that takes an ast element and returns
+# another ast element. In this case, we inspect the type of el and call it with
+# a context. A component can now return a function taking a context as argument
+# and returning an el.
 def context_middleware(context):
 
-    def middleware(el):
+    def middleware(el, *args):
         if callable(el):
             return el(context)
         else:
             return el
     return middleware
 
-def default_middleware(el, _props = [], _children=[]):
+def default_middleware(el, _props=[], _children=[]):
     return el
 
 import math
@@ -141,15 +141,23 @@ def render_html(el, props, child):
         children += c
 
     props_str = ""
-    for p in props:
-        if p["name"] != "children":
-            props_str += (p["name"] + "=\"" + p["value"] + "\"")
+    QUOT = "\""  # like &quot;
+
+    def render_prop(prop):
+        if prop['value'] == "":
+            return prop['name']
+        return f"{prop['name']}={QUOT}{prop['value']}{QUOT}"
+
+    props_str = ' '.join([render_prop(p)
+                          for p in props if p["name"] != "children"])
 
     self_closing_tags = ["input", "link", "img"]
     if name in self_closing_tags:
-        return f"<{name} {props_str} />"
-
-    return f"<{name} {props_str}>{children}</{name}>"
+        # return f"<{name} {props_str} />"
+        return f"<{name}{(' ' if props_str else '')}{props_str} />"
+    # return f"<{name} {props_str}>{children}</{name}>"
+    return f"<{name}{(' ' if props_str else '')}{props_str}>\
+{children}</{name}>"
 
 def render_js(el, props, child):
     name = el["name"]
@@ -164,7 +172,7 @@ def render_js(el, props, child):
 
     return f"{before}{children}{after}"
 
-def id_middleware(ast):
+def id_middleware(ast, *args):
     props = ast["props"]
     props.append({
         "name": "chp-id",
@@ -174,6 +182,7 @@ def id_middleware(ast):
 
 
 def render_ast(ast, ast_middleware, render_middleware):
+
     ast = ast_middleware(ast)
 
     props = ast["props"]
@@ -186,7 +195,8 @@ def render_ast(ast, ast_middleware, render_middleware):
     child = []
     if not children:
         child = ""
-    elif type(children) is str:
+    # capture regular and SafeText strings
+    elif isinstance(children, str):
         child = children
     else:
         for c in children:
@@ -194,8 +204,9 @@ def render_ast(ast, ast_middleware, render_middleware):
 
     return render_middleware(ast, props, child)
 
-def inject_ids(ast):
-    return render_ast(ast, id_middleware, default_middleware)
+def inject_ids(ast, ast_middleware=default_middleware):
+    # return render_ast(ast, id_middleware, default_middleware)
+    return render_ast(ast, ast_middleware, id_middleware)
 
 def render_js_element(ast):
     return render_ast(ast, default_middleware, render_js)
@@ -203,7 +214,7 @@ def render_js_element(ast):
 def render_element(ast, middleware=default_middleware):
     return render_ast(ast, middleware, render_html)
 
-def create_element(name, props, children):
+def create_element(name, props=[], children=[]):
     props.append({
         "name": "children",
         "value": children,
@@ -219,14 +230,6 @@ def create_prop(name, value):
         "name": name,
         "value": value,
     }
-
-def get_prop(props=[], name=[]):
-    for p in props:
-        try:
-            if p["name"] == name:
-                return p
-        except KeyError:
-            return None
 
 def create_context(value):
     return [{
