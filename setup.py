@@ -25,10 +25,12 @@ setup(
     tests_require=['tox'],
     extras_require=dict(
         dev=[
-          'django>=2.1rc1',
+            'django>=2.1',
+            'crudlfap',
         ],
         test=[
             'pytest',
+            'pytest-cov',
             'pytest-django',
             'pytest-mock',
             'mock',
