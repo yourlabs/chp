@@ -1,9 +1,10 @@
 import json
 
-from chp import chp
-
 from django.utils.safestring import mark_safe
 from django.views import generic
+
+from chp.pyreact import (context_middleware, inject_ids, render_element)
+from chp.store import Inject_ast_into_DOM
 
 from .components import FormSchema
 
@@ -15,9 +16,9 @@ class TodosView(generic.TemplateView):
         is_checked = {
             "name": "hello",
         }
-        ctx={
+        ctx = {
             "label": "Labelling:",
-            "password": "bar"
+            "password": "bar",
         }
         store = {
             "name": "this is my first store !!",
@@ -33,7 +34,7 @@ class TodosView(generic.TemplateView):
             ]
         }
         ast = FormSchema(store, json.dumps(store))
-        form = chp.inject_ids(ast)
-        app = chp.Inject_ast_into_DOM(form, json.dumps(form))
-        html = chp.render_element(app, chp.context_middleware(ctx))
+        form = inject_ids(ast)
+        app = Inject_ast_into_DOM(form, json.dumps(form))
+        html = render_element(app, context_middleware(ctx))
         return mark_safe(html)

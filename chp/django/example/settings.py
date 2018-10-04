@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     'chp.django',  # management command
     'chp.django.example.blog',
     'chp.django.example.todos',
+    'crudlfap',
 ]
 
 DATABASES = {
@@ -26,7 +27,7 @@ DATABASES = {
 STATIC_URL = '/static/'
 BASE_DIR = os.path.dirname(__file__)
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "blog", "dist"),
+    BASE_DIR,
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
