@@ -11,7 +11,7 @@ module.exports = {
   entry: './main.js',
   output: {
     filename: 'output.js',
-    path: path.resolve(__dirname)
+    path: path.resolve(__dirname, 'blog/static')
   },
 //   entry: './webpack_entry.py',
 //   output: {

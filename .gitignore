@@ -1,4 +1,17 @@
+# Python
+.cache
+*.egg-info
 __pycache__
-dist/
-node_modules/
-todos/static/todos.js
+*.pyc
+.tox
+.coverage
+.pytest_cache
+# Django
+db.sqlite3
+static/
+# yarn
+node_modules
+yarn.lock
+yarn-error.log
+package-lock.json
+__javascript__/
