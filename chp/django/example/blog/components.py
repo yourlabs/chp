@@ -84,8 +84,8 @@ class MdcCheckboxInput(ChpWidgetMixin, CheckboxInput):
 
     def chp_render(self, context):
         ast_checkbox = Checkbox(
-            context['widget']['attrs']['checked'],
-            context['widget']['attrs']['id'],
+            context['widget']['attrs'].get('checked', False),
+            context['widget']['attrs'].get('id', None),
             context
             )
 
