@@ -65,18 +65,21 @@ def LineRipple():
 
 
 def Label(label, el_for=None, context={}):
-    ast = chp.Label(label, el_for)
+    if label:
+        ast = chp.Label(label, el_for)
 
-    if context.get("input_type", "text") not in ['checkbox']:
-        ast["props"].append(
-            cp("class", "mdc-floating-label")
-        )
+        if context.get("input_type", "text") not in ['checkbox']:
+            ast["props"].append(
+                cp("class", "mdc-floating-label")
+            )
 
-    return ast
+        return ast
+    else:
+        return []
 
 
-def Input(el_type="text", el_id=None):
-    ast = chp.Input(el_type, el_id)
+def Input(el_type="text", el_id=None, el_value=None):
+    ast = chp.Input(el_type, el_id, el_value)
 
     ast["props"].append(
         cp("class", "mdc-text-field__input"),
@@ -97,14 +100,18 @@ def Checkbox(is_checked=False, el_id=None, context={}):
     ]
     children = [
         ast_input,
-        Div([cp("class", "mdc-checkbox__background")],
-            []
-            ),
+        Div([cp("class", "mdc-checkbox__background")], []),
     ]
     ast_field = Div(props, children)
 
     return ast_field
 
+
+def CheckboxField(is_checked=False, el_id=None, label="", context={}):
+    return FormField([
+        Checkbox(is_checked, el_id, context),
+        Label(el_id, label)
+        ])
 
 def InputField(el_type="text", children=[]):
     mdc_type = MDC_TYPE_MAP[el_type]
@@ -119,4 +126,9 @@ def SubmitButton(name, on_click):
     props = [
         cp('onclick', on_click)
     ]
-    return Button(props, name)
+    ast = chp.SubmitButton(props, name)
+    props = [
+        cp("class", "mdc-button"),
+        cp("data-mdc-auto-init", None),
+    ]
+    return Div(props, ast)

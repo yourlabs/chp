@@ -15,6 +15,7 @@
     {{ form.render }}
     
     <form action="{% url 'blog:post_create' %}" method="post">
+    {% csrf_token %}
 
     <div class="mdc_layout_grid__cell">
     <div style="display: flex;">
@@ -63,6 +64,9 @@
       <div class="mdc-line-ripple"></div>
     </div>
     </div>
+    </div>
+    <div class="mdc-button" data-mdc-auto-init="MDCButton">
+      <button type="submit">Submit</button>
     </div>
     </form>
     {# {{ form.render }} #}

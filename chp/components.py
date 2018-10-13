@@ -14,6 +14,14 @@ def Button(props, children):
     return ce('button', props, children)
 
 
+def SubmitButton(props, children):
+    props = props or []
+    props.append(
+        cp('type', 'submit'))
+    children = children or []
+    return ce('button', props, children)
+
+
 def Script(string=""):
     return ce('script', [], string)
 
@@ -40,13 +48,17 @@ def Errors():
     return Div(props, children)
 
 
-def Input(el_type="text", el_id=None):
+def Input(el_type="text", el_id=None, el_value=None):
     props = [
         cp('type', el_type),
     ]
     if id is not None:
         props.append(
             cp('id', el_id),
+        )
+    if el_value is not None:
+        props.append(
+            cp('value', el_value)
         )
     return ce('input', props, [])
 
@@ -61,13 +73,16 @@ def Checkbox(is_checked=False, el_id=None):
 
 
 def Label(label, el_for=None):
-    props = []
-    if el_for is not None:
-        props = [
-            cp("for", el_for)
-        ]
+    if label:
+        props = []
+        if el_for is not None:
+            props = [
+                cp("for", el_for)
+            ]
 
-    return ce('label', props, label)
+        return ce('label', props, label)
+    else:
+        return []
 
 
 # def Label(name):

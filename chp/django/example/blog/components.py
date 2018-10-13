@@ -65,24 +65,25 @@ class ChpWidgetMixin:
             attrs = attrs.copy()
         super().__init__(attrs)
 
-    def render(self, name, value, attrs=None, renderer=None):
-        """Build a context and render the widget as a component."""
-        context = self.get_context(name, value, attrs)
+    def _add_label(self, context):
         context['widget'].update(
             {'label': self.label,
              'id_for_label':
                 self.id_for_label(context['widget']['attrs']['id'])
              })
-        # return self._render(self.template_name, context, renderer)
-        return self.chp_render(context)
+        return context
 
-    def chp_render(self, context):
+    def _render(self, template_name, context, renderer=None):
+        '''Ignore template_name and renderer (see django.forms.py)
+        '''
+        context = self._add_label(context)
         raise NotImplementedError
 
 
 class MdcCheckboxInput(ChpWidgetMixin, CheckboxInput):
 
-    def chp_render(self, context):
+    def _render(self, template_name, context, renderer=None):
+        context = self._add_label(context)
         ast_checkbox = Checkbox(
             context['widget']['attrs'].get('checked', False),
             context['widget']['attrs'].get('id', None),
@@ -114,14 +115,11 @@ def MdcInput(field):
     else:
         input_type = "text"
 
-    ast = Input(input_type, field.auto_id)
-
     # widget formatted value
     value = field.field.widget.format_value(field.value())
-    if not (value == '' or value is None):
-        ast["props"].append(
-            cp("value", value)
-        )
+
+    ast = Input(input_type, field.auto_id, value)
+
     # widget-level attrs
     for (key, value) in field.field.widget.attrs.items():
         ast["props"].append(
