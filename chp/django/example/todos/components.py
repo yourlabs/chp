@@ -41,7 +41,8 @@ def FormSchema(store_content, store_content_json):
         return f"store_updates.add_todo({store_name})"
 
     def render():
-        form = Form([
+        form = Form([],
+                [
                 Div(
                     [cp("style", "display: flex;")],
                     [

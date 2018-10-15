@@ -1,4 +1,5 @@
 from .pyreact import *
+from pyreact import get_prop
 
 
 def Div(props, children):
@@ -6,19 +7,15 @@ def Div(props, children):
     return ce('div', props, children)
 
 
-def Button(props, children):
-    props = props or []
+def Button(props=[], children=[]):
     props.append(
         cp('type', 'button'))
-    children = children or []
     return ce('button', props, children)
 
 
-def SubmitButton(props, children):
-    props = props or []
+def SubmitButton(props=[], children=[]):
     props.append(
         cp('type', 'submit'))
-    children = children or []
     return ce('button', props, children)
 
 
@@ -33,11 +30,7 @@ def ScriptBefore(children, script_text):
     return Div([], children)
 
 
-def Form(children, action="#", method="POST"):
-    props = [
-        cp('action', action),
-        cp('method', method),
-    ]
+def Form(props=[], children=[]):
     return ce('form', props, children)
 
 
@@ -48,39 +41,20 @@ def Errors():
     return Div(props, children)
 
 
-def Input(el_type="text", el_id=None, el_value=None):
-    props = [
-        cp('type', el_type),
-    ]
-    if id is not None:
-        props.append(
-            cp('id', el_id),
+def Input(props=[], children=[]):
+    return ce('input', props, children)
+
+
+def Checkbox(props=[], children=[]):
+    props.append(
+        cp('type', "checkbox")
         )
-    if el_value is not None:
-        props.append(
-            cp('value', el_value)
-        )
-    return ce('input', props, [])
+    return Input(props, children)
 
 
-def Checkbox(is_checked=False, el_id=None):
-    ast = Input("checkbox", el_id)
-    if is_checked:
-        ast["props"].append(
-            cp('checked', "")
-        )
-    return ast
-
-
-def Label(label, el_for=None):
-    if label:
-        props = []
-        if el_for is not None:
-            props = [
-                cp("for", el_for)
-            ]
-
-        return ce('label', props, label)
+def Label(props=[], children=[]):
+    if children != []:
+        return ce('label', props, children)
     else:
         return []
 

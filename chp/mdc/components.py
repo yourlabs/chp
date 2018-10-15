@@ -1,7 +1,7 @@
 
 from .. import components as chp
 
-from ..pyreact import (ce, cp)
+from ..pyreact import (ce, cp, get_prop)
 
 MDC_TYPE_MAP = {
     "text": {
@@ -9,7 +9,7 @@ MDC_TYPE_MAP = {
         "init": "MDCTextField",
         },
     "date": {
-        "class": "mdc-date-field",
+        "class": "mdc-text-field",
         "init": "MDCTextField",
         },
     "select": {
@@ -44,8 +44,8 @@ def Cell(children=[]):
     return Div(props, children)
 
 
-def Form(children, action="#", method="POST"):
-    ast = chp.Form(children, action, method)
+def Form(props, children):
+    ast = chp.Form(props, children)
     ast["props"].append(
         cp('class', 'mdc-layout-grid__cell')
     )
@@ -64,57 +64,61 @@ def LineRipple():
     return Div([cp("class", "mdc-line-ripple")], [])
 
 
-def Label(label, el_for=None, context={}):
-    if label:
-        ast = chp.Label(label, el_for)
-
-        if context.get("input_type", "text") not in ['checkbox']:
-            ast["props"].append(
+def Label(props, children=[], context={}):
+    if children != []:
+        if context.get("type", "text") not in ["checkbox"]:
+            props.append(
                 cp("class", "mdc-floating-label")
             )
-
-        return ast
+        return chp.Label(props, children)
     else:
         return []
 
 
-def Input(el_type="text", el_id=None, el_value=None):
-    ast = chp.Input(el_type, el_id, el_value)
-
-    ast["props"].append(
+def Input(props, children):
+    props.append(
         cp("class", "mdc-text-field__input"),
     )
-    return ast
+    return chp.Input(props, children)
 
 
-def Checkbox(is_checked=False, el_id=None, context={}):
-    ast_input = chp.Checkbox(is_checked, el_id)
-
-    ast_input["props"].append(
+def Checkbox(props, children, context={}):
+    props.append(
         cp('class', 'mdc-checkbox__native-control')
     )
+    ast_input = chp.Checkbox(props, children)
 
-    props = [
+    props_field = [
         cp("class", "mdc-checkbox"),
         cp("data-mdc-auto-init", "MDCCheckbox"),
     ]
-    children = [
+    children_field = [
         ast_input,
         Div([cp("class", "mdc-checkbox__background")], []),
     ]
-    ast_field = Div(props, children)
+    ast_field = Div(props_field, children_field)
 
     return ast_field
 
 
-def CheckboxField(is_checked=False, el_id=None, label="", context={}):
-    return FormField([
-        Checkbox(is_checked, el_id, context),
-        Label(el_id, label)
-        ])
+def CheckboxField(props, children, context={}):
+    ast_checkbox = Checkbox(props, children, context)
+    children_formfield = [ast_checkbox]
+    label = context.get("label", "")
+    if label != "":
+        el_id = get_prop(props, "id")
+        if el_id is not None:
+            lbl_props = [
+                cp("for", el_id["value"]),
+            ]
+        ast_label = Label(lbl_props, label, context)
+        children_formfield.append(ast_label)
+    return FormField(children_formfield)
 
-def InputField(el_type="text", children=[]):
-    mdc_type = MDC_TYPE_MAP[el_type]
+
+def InputField(props, children=[]):
+    typ = get_prop(props, "type")
+    mdc_type = MDC_TYPE_MAP[typ["value"]]
     props = [
         cp("class", mdc_type["class"]),
         cp("data-mdc-auto-init", mdc_type["init"]),
@@ -122,11 +126,8 @@ def InputField(el_type="text", children=[]):
     return Div(props, children)
 
 
-def SubmitButton(name, on_click):
-    props = [
-        cp('onclick', on_click)
-    ]
-    ast = chp.SubmitButton(props, name)
+def SubmitButton(props, children):
+    ast = chp.SubmitButton(props, children)
     props = [
         cp("class", "mdc-button"),
         cp("data-mdc-auto-init", None),

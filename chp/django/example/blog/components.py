@@ -84,16 +84,27 @@ class MdcCheckboxInput(ChpWidgetMixin, CheckboxInput):
 
     def _render(self, template_name, context, renderer=None):
         context = self._add_label(context)
-        ast_checkbox = Checkbox(
-            context['widget']['attrs'].get('checked', False),
-            context['widget']['attrs'].get('id', None),
-            context
-            )
 
-        children = [ast_checkbox,
-                    MdcLabelWidget(context)
-                    ]
-        return FormField(children)
+        props, children = [], []
+        props.append(
+            cp("type", "checkbox"),
+            )
+        checked = context['widget']['attrs'].get('checked', False)
+        if checked:
+            props.append(cp("checked", checked))
+        el_id = context['widget']['attrs'].get('id', None)
+        if el_id:
+            props.append(cp("id", el_id))
+
+        label = context['widget']['label']
+        if isinstance(label, Promise):
+            label = conditional_escape(label)
+        context.update({
+            "label": label,
+            "for": context['widget']['id_for_label'],
+            "type": context['widget']['type'],
+        })
+        return CheckboxField(props, children, context)
 
 
 def MdcCheckbox(field):
@@ -110,23 +121,25 @@ def MdcCheckbox(field):
 
 
 def MdcInput(field):
-    if field.mdc_type == "MDCDateField":
-        input_type = "date"
-    else:
-        input_type = "text"
-
+    # typ = field.field.widget.input_type
+    typ = field.mdc_type
     # widget formatted value
     value = field.field.widget.format_value(field.value())
 
-    ast = Input(input_type, field.auto_id, value)
+    props = [
+        cp("type", typ),
+        ]
+    if value:
+        props.append(cp("value", value))
+    if field.auto_id:
+        props.append(cp("id", field.auto_id))
 
     # widget-level attrs
     for (key, value) in field.field.widget.attrs.items():
-        ast["props"].append(
+        props.append(
             cp(key, value)
         )
-
-    return ast
+    return Input(props, [])
 
 
 def DjLabel(field):
@@ -135,41 +148,33 @@ def DjLabel(field):
     if isinstance(label, Promise):
         label = conditional_escape(label)
 
+    props = [
+        cp("for", field.id_for_label),
+    ]
     context = {
-        "input_type": field.field.widget.input_type,
-        "id_for_label": field.id_for_label,
+        "type": field.mdc_type,
+        "for": field.id_for_label,
         "label": label,
     }
 
-    return Label(label, context["id_for_label"], context)
-
-
-def MdcLabelWidget(context):
-    label = context['widget']['label']
-    # render gettext_lazy strings so they are recognised by AST renderer
-    if isinstance(label, Promise):
-        label = str(label)
-
-    el_for = context['widget']['id_for_label']
-    el_context = {}
-    el_context["input_type"] = context['widget']['type']
-
-    return Label(label, el_for, el_context)
+    return Label(props, label, context)
 
 
 def MdcTextField(field):
-    if not hasattr(field, 'mdc_type'):
-        field.mdc_type = 'MDCTextField'
-
+    # to differentiate from Django date field
+    if not hasattr(field, "mdc_type"):
+        field.mdc_type = "text"
+    props = [
+        cp("type", field.mdc_type),
+        ]
     children = [
         MdcInput(field),
         DjLabel(field),
         LineRipple(),
     ]
-    return InputField(field.field.widget.input_type, children)
+    return InputField(props, children)
 
 
 def MdcDateField(field):
-    if not hasattr(field, 'mdc_type'):
-        field.mdc_type = 'MDCDateField'
+    field.mdc_type = "date"
     return MdcTextField(field)

@@ -33,6 +33,10 @@ class PostForm(forms.ModelForm):
         def render(self, *args, **kwargs):
 
             form = Form([
+                cp('action', reverse('blog:post_create')),
+                cp('method', "POST"),
+                ],
+                [
                 Cell([
                     Div(
                         [cp("style", "display: flex;")],
@@ -44,8 +48,7 @@ class PostForm(forms.ModelForm):
                         ],
                     ),
                 ])
-                ],
-                action=reverse('blog:post_create'))
+                ])
 
             return form
 
