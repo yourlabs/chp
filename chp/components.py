@@ -1,5 +1,4 @@
 from .pyreact import *
-from pyreact import get_prop
 
 
 def Div(props, children):
@@ -57,6 +56,31 @@ def Label(props=[], children=[]):
         return ce('label', props, children)
     else:
         return []
+
+
+def Date(props=[], children=[]):
+    props.append(
+        cp('type', "date")
+        )
+    return Input(props, children)
+
+
+def Select(props=[], children=[]):
+    required = get_prop(props, "required")
+    if required is not None:
+        # find first option and set it "disabled"
+        try:
+            props_option = children[0]["props"]
+            props_option.append(
+                cp("disabled", "disabled"),
+            )
+        except (Exception, e):
+            pass
+    return ce('select', props, children)
+
+
+def Option(props=[], children=[]):
+    return ce("option", props, children)
 
 
 # def Label(name):

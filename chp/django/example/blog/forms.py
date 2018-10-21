@@ -37,17 +37,42 @@ class PostForm(forms.ModelForm):
                 cp('method', "POST"),
                 ],
                 [
-                Cell([
-                    Div(
-                        [cp("style", "display: flex;")],
-                        [
-                            MdcCheckbox(self["checkbox"]),
-                            MdcTextField(self["text"]),
-                            MdcDateField(self["date"]),
-                            # MdcSelect(self["foreignkey"]),
-                        ],
-                    ),
-                ])
+                Flex([],
+                     [
+                        MdcCheckbox(self["checkbox"]),
+                        MdcTextField(self["text"]),
+                        MdcDateField(self["date"]),
+                        # MdcSelect(self["foreignkey"]),
+                        SelectField([
+                            # cp("required", "required"),
+                            cp("id", "id_foreignkey"),
+                            ], [
+                            Option([
+                                cp("value", ""),
+                                cp("selected", "selected"),
+                                ]
+                            ),
+                            Option([
+                                cp("value", "grains"),
+                                ],
+                                "Bread, Cereal, Rice, and Pasta"
+                            ),
+                            Option([
+                                cp("value", "vegetables"),
+                                ],
+                                "Vegetables"
+                            ),
+                            Option([
+                                cp("value", "fruit"),
+                                ],
+                                "Fruit"
+                            ),
+                            ],
+                            {"label": "Pick a Food Group",
+                             }
+                        )
+                    ],
+                ),
                 ])
 
             return form

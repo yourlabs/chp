@@ -22,7 +22,7 @@
 
     <div class="mdc-form-field mdc-form-field--align-end" data-mdc-auto-init="MDCFormField">
       <div class="mdc-checkbox" data-mdc-auto-init="MDCCheckbox">
-        <input type="checkbox" class="mdc-checkbox__native-control"/>
+        <input id="my-checkbox" type="checkbox" class="mdc-checkbox__native-control"/>
         <div class="mdc-checkbox__background">
         </div>
       </div>
@@ -30,25 +30,26 @@
     </div>
 
     <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
-      <input class="mdc-text-field__input" type="text" >
-      <label for="input" class="mdc-floating-label">Input Label</label>
+      <input id="text-input" class="mdc-text-field__input" type="text" >
+      <label for="text-input" class="mdc-floating-label">Input Label</label>
       <div class="mdc-line-ripple"></div>
     </div>
 
     <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
       <input
+        id="date-input"
         class="mdc-text-field__input"
         type="date"
       >
       <label
-        for="input"
+        for="date-input"
         class="mdc-floating-label"
       >Type = date</label>
       <div class="mdc-line-ripple"></div>
     </div>
 
     <div class="mdc-select" data-mdc-auto-init="MDCSelect">
-      <select class="mdc-select__native-control">
+      <select id="select-input" class="mdc-select__native-control">
         <option value="" disabled selected></option>
         <option value="grains">
           Bread, Cereal, Rice, and Pasta
@@ -60,7 +61,7 @@
           Fruit
         </option>
       </select>
-      <label class="mdc-floating-label">Pick a Food Group</label>
+      <label for="select-input" class="mdc-floating-label">Pick a Food Group</label>
       <div class="mdc-line-ripple"></div>
     </div>
     </div>
