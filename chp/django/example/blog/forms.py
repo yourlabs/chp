@@ -11,9 +11,8 @@ from chp.pyreact import (
 from chp.store import (create_store, Inject_ast_into_DOM, render_app)
 
 from chp.mdc.components import *
+from chp.mdc.django.factory import Factory as MdcField
 
-from .components import (
-    MdcCheckbox, MdcDateField, MdcTextField)
 from .models import Post
 
 
@@ -39,17 +38,17 @@ class PostForm(forms.ModelForm):
                 [
                 Flex([],
                      [
-                        MdcCheckbox(self["checkbox"]),
-                        MdcTextField(self["text"]),
-                        MdcDateField(self["date"]),
-                        # MdcSelect(self["foreignkey"]),
+                        MdcField.render(self["checkbox"]),
+                        MdcField.render(self["text"]),
+                        MdcField.render(self["date"]),
                         SelectField([
                             # cp("required", "required"),
+                            cp("name", "foreignkey"),
                             cp("id", "id_foreignkey"),
+                            cp("required", True),
                             ], [
                             Option([
                                 cp("value", ""),
-                                cp("selected", "selected"),
                                 ]
                             ),
                             Option([

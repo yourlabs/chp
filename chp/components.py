@@ -1,4 +1,4 @@
-from .pyreact import *
+from .pyreact import ce, cp, get_prop
 
 
 def Div(props, children):
@@ -51,6 +51,13 @@ def Checkbox(props=[], children=[]):
     return Input(props, children)
 
 
+def Text(props=[], children=[]):
+    props.append(
+        cp('type', "text")
+        )
+    return Input(props, children)
+
+
 def Label(props=[], children=[]):
     if children != []:
         return ce('label', props, children)
@@ -68,13 +75,17 @@ def Date(props=[], children=[]):
 def Select(props=[], children=[]):
     required = get_prop(props, "required")
     if required is not None:
-        # find first option and set it "disabled"
+        # find first option and disable it if it no value
         try:
             props_option = children[0]["props"]
-            props_option.append(
-                cp("disabled", "disabled"),
-            )
-        except (Exception, e):
+            option_value = get_prop(props_option, "value")
+            if (option_value is None 
+                    or option_value["value"] == ""):
+                props_option.extend([
+                    cp("disabled", True),
+                    cp("selected", True),
+                ])
+        except (Exception, ) as e:
             pass
     return ce('select', props, children)
 

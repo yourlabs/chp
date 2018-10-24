@@ -144,9 +144,11 @@ def render_html(el, props, child):
     QUOT = "\""  # like &quot;
 
     def render_prop(prop):
-        if prop['value'] == "":
+        if prop['value'] is True:
             return prop['name']
-        return f"{prop['name']}={QUOT}{prop['value']}{QUOT}"
+        if prop["value"] is not False:
+            return f"{prop['name']}={QUOT}{prop['value']}{QUOT}"
+        return ""
 
     props_str = ' '.join([render_prop(p)
                           for p in props if p["name"] != "children"])
