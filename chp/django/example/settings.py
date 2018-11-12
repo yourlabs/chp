@@ -18,17 +18,18 @@ INSTALLED_APPS = [
     'crudlfap',
 ]
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
-    }
-}
 STATIC_URL = '/static/'
 BASE_DIR = os.path.dirname(__file__)
 STATICFILES_DIRS = [
     BASE_DIR,
 ]
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

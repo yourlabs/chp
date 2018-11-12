@@ -2,7 +2,6 @@ from django.forms.boundfield import BoundField
 from django.forms.fields import Field
 from django.utils.functional import Promise
 from django.utils.html import conditional_escape, format_html
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 import django.forms.widgets as Widgets
@@ -26,117 +25,129 @@ class Factory:
                               if hasattr(field, "form") else ""))
         if label_suffix and contents and contents[-1] not in _(':?.!'):
             contents = format_html('{}{}', contents, label_suffix)
+        # cast any lazy translation strings
+        if isinstance(contents, Promise):
+            contents = conditional_escape(contents)
         return contents
 
     @staticmethod
-    def render(field):
-        """Introspect the field and call an MdcWidget render method."""
+    def render(field, widget=None, attrs=None, only_initial=False):
+        """Introspect the field and call an MDC render method."""
         if isinstance(field, BoundField):
             widget_type = field.field.widget.__class__.__name__
-            mdc_widget = getattr(
-                MdcWidgets, f"Mdc{widget_type}")
-            label = Factory.get_label(field)
-            return field.as_widget(mdc_widget(label=label))
+            mdc_render = getattr(
+                Factory, f"mdc_{widget_type.lower()}", None)
+            if mdc_render is not None:
+                # code from from boundfield.as_widget()
+                widget = field.field.widget
+                if field.field.localize:
+                    widget.is_localized = True
+                attrs = attrs or {}
+                attrs = field.build_widget_attrs(attrs, widget)
+                if field.auto_id and 'id' not in widget.attrs:
+                    attrs.setdefault('id',
+                                     field.html_initial_id
+                                     if only_initial else field.auto_id)
+                context = widget.get_context(
+                    name=(field.html_initial_name
+                          if only_initial else field.html_name),
+                    value=field.value(),
+                    attrs=attrs
+                )
+                label = Factory.get_label(field)
+                for_id = widget.attrs.get('id') or field.auto_id
+                context.update(
+                    {'label': label,
+                     'for': widget.id_for_label(for_id),
+                     'type':
+                        context['widget'].get('type',
+                                              field.field.widget.input_type),
+                     })
+
+                return mdc_render(context)
         raise NotImplementedError
 
-
-class ChpWidgetMixin:
-    chp_widget = None
-
-    def __init__(self, attrs=None, **kwargs):
-        """Capture the field label in the widget."""
-        self.label = kwargs.pop("label", None)
-        if attrs is not None:
-            attrs = attrs.copy()
-        super().__init__(attrs)
-
-    def _add_label(self, context):
-        """Add the field label to the widget context."""
-        label = self.label
-        # cast any lazy translation strings
-        if isinstance(label, Promise):
-            label = conditional_escape(label)
-
-        context['widget'].update(
-            {'label': label,
-             'id_for_label':
-                self.id_for_label(context['widget']['attrs']['id'])
-             })
-        return context
-
-    def get_mdc_context(self, context):
-        """Update the context for MDC components."""
-        context = self._add_label(context)
-        context.update({
-            "type": context['widget']['type'],
-            "label": context['widget']['label'],
-            "for": context['widget']['id_for_label'],
-        })
-        return context
-
-    def _render(self, template_name, context, renderer=None):
-        """Render the widget as a CHP MDC AST."""
-        # prepare the field label
-        context = self.get_mdc_context(context)
-        return self._mdc_render(context)
-
-    def _mdc_render(self, context):
-        """Override this method for MDC widget rendering."""
-        raise NotImplementedError
-
-
-class MdcWidgets:
-    class MdcCheckboxInput(ChpWidgetMixin, Widgets.CheckboxInput):
+    @staticmethod
+    def mdc_checkboxinput(context):
         mdc_type = "checkbox"
 
-        def _mdc_render(self, context):
-            props, children = [], []
-            props.append(
-                cp("name", context['widget']['name']))
+        props, children = [], []
+        props.append(
+            cp("name", context['widget']['name']))
+        if context["widget"]["value"] is not None:
+            cp("value", context["widget"]["value"])
 
-            for attr, value in context['widget']['attrs'].items():
-                props.append(cp(attr, value))
+        for attr, value in context['widget']['attrs'].items():
+            props.append(cp(attr, value))
 
-            return mdc.CheckboxField(props, children, context)
+        return mdc.CheckboxField(props, children, context)
 
-    class MdcTextInput(ChpWidgetMixin, Widgets.TextInput):
+    @staticmethod
+    def mdc_textinput(context):
         mdc_type = "text"
 
-        def _mdc_render(self, context):
-            props, children = [], []
+        props, children = [], []
+        props.append(
+            cp("name", context['widget']['name']))
+        if context["widget"]["value"] is not None:
             props.append(
-                cp("name", context['widget']['name']))
+                cp("value", context["widget"]["value"]))
 
-            for attr, value in context['widget']['attrs'].items():
-                props.append(cp(attr, value))
+        for attr, value in context['widget']['attrs'].items():
+            props.append(cp(attr, value))
 
-            return mdc.TextField(props, children, context)
+        return mdc.TextField(props, children, context)
 
-    class MdcDateInput(ChpWidgetMixin, Widgets.DateInput):
+    @staticmethod
+    def mdc_dateinput(context):
         mdc_type = "date"
 
-        def _mdc_render(self, context):
-            props, children = [], []
+        props, children = [], []
+        props.append(
+            cp("name", context['widget']['name']))
+        if context["widget"]["value"] is not None:
             props.append(
-                cp("name", context['widget']['name']))
+                cp("value", context["widget"]["value"]))
 
-            for attr, value in context['widget']['attrs'].items():
-                props.append(cp(attr, value))
+        for attr, value in context['widget']['attrs'].items():
+            props.append(cp(attr, value))
 
-            return mdc.DateField(props, children, context)
+        return mdc.DateField(props, children, context)
 
-    class MdcSelect(ChpWidgetMixin, Widgets.Select):
+    @staticmethod
+    def mdc_select(context):
         mdc_type = "select"
+        props, children = [], []
+        props.append(
+            cp("name", context['widget']['name']))
 
-        def _mdc_render(self, context):
-            props, children = [], []
-            props.append(
-                cp("name", context['widget']['name']))
+        for attr, value in context['widget']['attrs'].items():
+            props.append(cp(attr, value))
 
-            for attr, value in context['widget']['attrs'].items():
-                props.append(cp(attr, value))
+        # Implementation of
+        # django/forms/templates/django/forms/widgets/select.html
+        for group_name, group_choices, group_index in \
+                context["widget"]["optgroups"]:
+            props_group, children_group = [], []
+            if group_name:
+                props_group = [cp("label", group_name)]
 
-            # TODO: build children list of options from queryset.
-            # TODO: create optgroups if required.
+            for option in group_choices:
+                props_option = []
+                option_label = option["label"]
+                if option["value"] == "":
+                    option_label = ""
+                props_option.append(
+                    cp("value", str(option["value"])))
+                for attr, value in option['attrs'].items():
+                    props_option.append(cp(attr, value))
+                children_group.append(
+                    chp.Option(props_option, option_label))
 
-            return mdc.SelectField(props, children, context)
+            if group_name:
+                children.append(
+                    chp.Optgroup(props_group, children_group))
+            else:
+                children.extend(children_group)
+
+        return mdc.SelectField(props, children, context)

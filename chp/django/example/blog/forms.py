@@ -4,13 +4,13 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 # from chp import chp
-from chp.components import *
+from chp.components import *  #noqa
 from chp.pyreact import (
     context_middleware, inject_ids, render_element
 )
 from chp.store import (create_store, Inject_ast_into_DOM, render_app)
-
-from chp.mdc.components import *
+# from chp.django.components import *  #noqa
+from chp.mdc.components import *  # noqa
 from chp.mdc.django.factory import Factory as MdcField
 
 from .models import Post
@@ -31,48 +31,24 @@ class PostForm(forms.ModelForm):
 
         def render(self, *args, **kwargs):
 
-            form = Form([
-                cp('action', reverse('blog:post_create')),
-                cp('method', "POST"),
-                ],
-                [
+            form = (
+                # Form([
+                # cp('id', "form-chp"),
+                # ],
+                # [
+                # Csrf(),
                 Flex([],
                      [
                         MdcField.render(self["checkbox"]),
                         MdcField.render(self["text"]),
                         MdcField.render(self["date"]),
-                        SelectField([
-                            # cp("required", "required"),
-                            cp("name", "foreignkey"),
-                            cp("id", "id_foreignkey"),
-                            cp("required", True),
-                            ], [
-                            Option([
-                                cp("value", ""),
-                                ]
-                            ),
-                            Option([
-                                cp("value", "grains"),
-                                ],
-                                "Bread, Cereal, Rice, and Pasta"
-                            ),
-                            Option([
-                                cp("value", "vegetables"),
-                                ],
-                                "Vegetables"
-                            ),
-                            Option([
-                                cp("value", "fruit"),
-                                ],
-                                "Fruit"
-                            ),
-                            ],
-                            {"label": "Pick a Food Group",
-                             }
-                        )
+                        MdcField.render(self["media"]),
+                        MdcField.render(self["foreignkey"]),
                     ],
-                ),
-                ])
+                )
+                # ,
+                # ])
+                )
 
             return form
 

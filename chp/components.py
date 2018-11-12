@@ -75,16 +75,14 @@ def Date(props=[], children=[]):
 def Select(props=[], children=[]):
     required = get_prop(props, "required")
     if required is not None:
-        # find first option and disable it if it no value
+        # find first option and disable it if it has no value
         try:
             props_option = children[0]["props"]
             option_value = get_prop(props_option, "value")
             if (option_value is None 
                     or option_value["value"] == ""):
-                props_option.extend([
-                    cp("disabled", True),
-                    cp("selected", True),
-                ])
+                props_option.append(
+                    cp("disabled", True))
         except (Exception, ) as e:
             pass
     return ce('select', props, children)
@@ -92,6 +90,10 @@ def Select(props=[], children=[]):
 
 def Option(props=[], children=[]):
     return ce("option", props, children)
+
+
+def Optgroup(props=[], children=[]):
+    return ce("optgroup", props, children)
 
 
 # def Label(name):

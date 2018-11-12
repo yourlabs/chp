@@ -70,7 +70,7 @@ def FormField(children=[]):
     """Wrap an element in an MDC FormField.
 
     Only required for checkbox and radio button fields
-    """ 
+    """
     props = [
         cp("class", "mdc-form-field mdc-form-field--align-end"),
         cp("data-mdc-auto-init", "MDCFormField"),
@@ -102,10 +102,11 @@ def Text(props=[], children=[]):
     )
     return chp.Text(props, children)
 
+
 def TextField(props=[], children=[], context={}):
     """Wrap a text input element with a label (from context) in an MDC Field.
 
-    If a label is provided, find a "for" field id from context or else the 
+    If a label is provided, find a "for" field id from context or else the
     input element id."""
     children_field = [
         Text(props, children)
@@ -138,7 +139,7 @@ def Date(props=[], children=[]):
 def DateField(props=[], children=[], context={}):
     """Wrap a date input element with a label (from context) in an MDC Field.
 
-    If a label is provided, find a "for" field id from context or else the 
+    If a label is provided, find a "for" field id from context or else the
     input element id."""
     children_field = [
         Date(props, children)
@@ -163,7 +164,7 @@ def DateField(props=[], children=[], context={}):
 
 
 def Checkbox(props=[], children=[], context={}):
-    """Wrap a checkbox input element with a default background 
+    """Wrap a checkbox input element with a default background
     in an MDC Field."""
     context.update({"type": "checkbox"})
     props.append(
@@ -179,10 +180,10 @@ def Checkbox(props=[], children=[], context={}):
 
 
 def CheckboxField(props=[], children=[], context={}):
-    """Wrap a checkbox MDC field with a label (from context) 
+    """Wrap a checkbox MDC field with a label (from context)
     in an MDC FormField.
 
-    If a label is provided, find a "for" field id from context or else the 
+    If a label is provided, find a "for" field id from context or else the
     input element id."""
     ast_checkbox = Checkbox(props, children, context)
     children_formfield = [ast_checkbox]
@@ -236,9 +237,9 @@ def Select(props=[], children=[]):
 
 
 def SelectField(props=[], children=[], context={}):
-    """Wrap a select element with a label (from context) in an MDC Field.
+    """Wrap a Select element with a label (from context) in an MDC Field.
 
-    If a label is provided, find a "for" field id from context or else the 
+    If a label is provided, find a "for" field id from context or else the
     select element id."""
     context.update({"type": "select"})
     ast = Select(props, children)
