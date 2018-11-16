@@ -17,6 +17,7 @@ class Factory:
 
     @staticmethod
     def get_label(field):
+        """Return a field label with suffix."""
         # code taken from Boundfield.label_tag()
         contents = field.label
         label_suffix = (field.field.label_suffix
@@ -32,43 +33,50 @@ class Factory:
 
     @staticmethod
     def render(field, widget=None, attrs=None, only_initial=False):
-        """Introspect the field and call an MDC render method."""
-        if isinstance(field, BoundField):
-            widget_type = field.field.widget.__class__.__name__
-            mdc_render = getattr(
-                Factory, f"mdc_{widget_type.lower()}", None)
-            if mdc_render is not None:
-                # code from from boundfield.as_widget()
-                widget = field.field.widget
-                if field.field.localize:
-                    widget.is_localized = True
-                attrs = attrs or {}
-                attrs = field.build_widget_attrs(attrs, widget)
-                if field.auto_id and 'id' not in widget.attrs:
-                    attrs.setdefault('id',
-                                     field.html_initial_id
-                                     if only_initial else field.auto_id)
-                context = widget.get_context(
-                    name=(field.html_initial_name
-                          if only_initial else field.html_name),
-                    value=field.value(),
-                    attrs=attrs
-                )
-                label = Factory.get_label(field)
-                for_id = widget.attrs.get('id') or field.auto_id
-                context.update(
-                    {'label': label,
-                     'for': widget.id_for_label(for_id),
-                     'type':
-                        context['widget'].get('type',
-                                              field.field.widget.input_type),
-                     })
+        """Introspect the field and call an MDC render method.
 
-                return mdc_render(context)
-        raise NotImplementedError
+        Prepare the widget attrs, field label and context first.
+        """
+        if not isinstance(field, BoundField):
+            raise NotImplementedError
+
+        widget_type = field.field.widget.__class__.__name__
+        mdc_render = getattr(
+            Factory, f"mdc_{widget_type.lower()}", None)
+        if mdc_render is None:
+            raise NotImplementedError
+
+        # code from from boundfield.as_widget()
+        widget = field.field.widget
+        if field.field.localize:
+            widget.is_localized = True
+        attrs = attrs or {}
+        attrs = field.build_widget_attrs(attrs, widget)
+        if field.auto_id and 'id' not in widget.attrs:
+            attrs.setdefault('id',
+                             field.html_initial_id
+                             if only_initial else field.auto_id)
+        context = widget.get_context(
+            name=(field.html_initial_name
+                  if only_initial else field.html_name),
+            value=field.value(),
+            attrs=attrs
+        )
+        label = Factory.get_label(field)
+        for_id = widget.attrs.get('id') or field.auto_id
+        context.update(
+            {'label': label,
+             'for': widget.id_for_label(for_id),
+             'type':
+                context['widget'].get('type',
+                                      field.field.widget.input_type),
+             })
+
+        return mdc_render(context)
 
     @staticmethod
     def mdc_checkboxinput(context):
+        """Render a BooleanField/CheckBoxInput field/widget."""
         mdc_type = "checkbox"
 
         props, children = [], []
@@ -84,6 +92,7 @@ class Factory:
 
     @staticmethod
     def mdc_textinput(context):
+        """Render a CharField/TextInput field/widget."""
         mdc_type = "text"
 
         props, children = [], []
@@ -100,6 +109,7 @@ class Factory:
 
     @staticmethod
     def mdc_dateinput(context):
+        """Render a DateField/DateInput field/widget."""
         mdc_type = "date"
 
         props, children = [], []
@@ -116,6 +126,8 @@ class Factory:
 
     @staticmethod
     def mdc_select(context):
+        """Render a CharField/choices or ForeignKey/Select field/widget.
+        """
         mdc_type = "select"
         props, children = [], []
         props.append(
