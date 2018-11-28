@@ -15,16 +15,8 @@
       </div>
     </form>
 
-    <form id="form-chp" method="post">
-      {% csrf_token %}
+    {{ form.render }}
 
-      {{ form.render }}
-
-      <div class="mdc-button">
-        <button form="form-chp" type="submit">Submit</button>
-      </div>
-    </form>
-  
     <form id="form-mdc" method="post">
       {% csrf_token %}
 

@@ -9,7 +9,7 @@ from chp.pyreact import (
     context_middleware, inject_ids, render_element
 )
 from chp.store import (create_store, Inject_ast_into_DOM, render_app)
-# from chp.django.components import *  #noqa
+from chp.django.components import Csrf
 from chp.mdc.components import *  # noqa
 from chp.mdc.django.factory import Factory as MdcField
 
@@ -32,23 +32,33 @@ class PostForm(forms.ModelForm):
         def render(self, *args, **kwargs):
 
             form = (
-                # Form([
-                # cp('id', "form-chp"),
-                # ],
-                # [
-                # Csrf(),
-                Flex([],
-                     [
-                        MdcField.render(self["checkbox"]),
-                        MdcField.render(self["text"]),
-                        MdcField.render(self["date"]),
-                        MdcField.render(self["media"]),
-                        MdcField.render(self["foreignkey"]),
+                Grid([], [
+                Row([], [
+                Cell([], [
+                Form([
+                        cp('id', "form-chp"),
                     ],
-                )
-                # ,
-                # ])
-                )
+                    [
+                        Csrf(),
+                        Flex([],
+                             [
+                             # Div([], str(self.errors)),
+                             MdcField.render(self["checkbox"]),
+                             MdcField.render(self["text"]),
+                             MdcField.render(self["date"]),
+                             MdcField.render(self["media"]),
+                             MdcField.render(self["foreignkey"]),
+                             ]),
+                        Flex([],
+                             [
+                             SubmitButton([cp("form", "form-chp")]),
+                             ],
+                             {"display": "grid"}),
+                    ])
+                ])  # Cell
+                ])  # Row
+                ])  # Grid
+            )
 
             return form
 

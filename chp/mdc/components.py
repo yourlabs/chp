@@ -27,25 +27,29 @@ def Div(props=[], children=[]):
     return chp.Div(props, children)
 
 
-def Grid(children=[]):
-    """Set the DMC display to 'grid'."""
-    props = [
+def Grid(props=[], children=[]):
+    """Start the MDC grid layout."""
+    props.append(
         cp('class', 'mdc-layout-grid')
-    ]
+    )
     return Div(props, children)
 
 
-def Row(children=[]):
-    props = [
+def Row(props=[], children=[]):
+    """Start the MDC grid inner."""
+    props.append(
         cp('class', 'mdc-layout-grid__inner')
-    ]
+    )
     return Div(props, children)
 
 
-def Cell(children=[]):
-    props = [
-        cp('class', 'mdc-layout-grid__cell')
-    ]
+def Cell(props=[], children=[]):
+    """Start the MDC grid cell.
+
+    Set the span to 12 columns as a sensible default."""
+    props.append(
+        cp('class', 'mdc-layout-grid__cell--span-12')
+    )
     return Div(props, children)
 
 
@@ -60,9 +64,9 @@ def Flex(props=[], children=[], context={}):
 
 def Form(props=[], children=[]):
     ast = chp.Form(props, children)
-    ast["props"].append(
-        cp('class', 'mdc-layout-grid__cell')
-    )
+    # ast["props"].append(
+    #     cp('class', 'mdc-layout-grid__cell')
+    # )
     return ast
 
 
@@ -225,7 +229,8 @@ def SubmitButton(props=[], children=[]):
         cp("class", "mdc-button"),
         cp("data-mdc-auto-init", None),
     ]
-    return Div(props_div, ast)
+    children_div = [ast]
+    return Div(props_div, children_div)
 
 
 def Select(props=[], children=[]):

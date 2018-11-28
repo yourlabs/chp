@@ -1,8 +1,7 @@
 from .pyreact import ce, cp, get_prop
 
 
-def Div(props, children):
-    children = children or []
+def Div(props=[], children=[]):
     return ce('div', props, children)
 
 
@@ -15,6 +14,8 @@ def Button(props=[], children=[]):
 def SubmitButton(props=[], children=[]):
     props.append(
         cp('type', 'submit'))
+    if children == []:
+        children = "Submit"
     return ce('button', props, children)
 
 
