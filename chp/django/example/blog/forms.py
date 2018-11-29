@@ -22,9 +22,9 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = "__all__"
         labels = {
-            'checkbox': _("This is my checkbox"),
-            'text': _("Input Label"),
-            'date': _("Type = date"),
+            "checkbox": _("This is my checkbox"),
+            "text": _("Input Label"),
+            "date": _("Type = date"),
         }
 
     def FormSchema(self, *args, **kwargs):
@@ -36,7 +36,8 @@ class PostForm(forms.ModelForm):
                 Row([], [
                 Cell([], [
                 Form([
-                        cp('id', "form-chp"),
+                        cp("id", "form-chp"),
+                        cp("method", "POST"),
                     ],
                     [
                         Csrf(),

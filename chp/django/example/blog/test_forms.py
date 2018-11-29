@@ -32,35 +32,35 @@ def test_render(postform):
     """Regression test."""
 
     regex = """
-<div class="mdc-layout-grid" chp-id="[0-9]+">
-<div class="mdc-layout-grid__inner" chp-id="[0-9]+">
-<div class="mdc-layout-grid__cell--span-12" chp-id="[0-9]+">
-<form id="form-chp" chp-id="[0-9]+">
-<input type="hidden" name="csrfmiddlewaretoken" value="REQUEST NOT AVAILABLE IN CONTEXT" chp-id="[0-9]+" />
-<div style="display: flex;" chp-id="[0-9]+">
-<div class="mdc-form-field mdc-form-field--align-end" data-mdc-auto-init="MDCFormField" chp-id="[0-9]+">
-<div class="mdc-checkbox" data-mdc-auto-init="MDCCheckbox" chp-id="[0-9]+"><input name="checkbox" id="id_checkbox" checked class="mdc-checkbox__native-control" type="checkbox" chp-id="[0-9]+" />
-<div class="mdc-checkbox__background" chp-id="[0-9]+"></div></div><label for="id_checkbox" chp-id="[0-9]+">This is my checkbox:</label></div>
-<div class="mdc-text-field" data-mdc-auto-init="MDCTextField" chp-id="[0-9]+"><input name="text" value="Initial value" maxlength="[0-9]+" required id="id_text" class="mdc-text-field__input" type="text" chp-id="[0-9]+" />
-<label for="id_text" class="mdc-floating-label" chp-id="[0-9]+">Input Label:</label>
-<div class="mdc-line-ripple" chp-id="[0-9]+"></div></div>
-<div class="mdc-text-field" data-mdc-auto-init="MDCTextField" chp-id="[0-9]+"><input name="date" value="2018-10-03" required id="id_date" class="mdc-text-field__input" type="date" chp-id="[0-9]+" />
-<label for="id_date" class="mdc-floating-label" chp-id="[0-9]+">Type = date:</label>
-<div class="mdc-line-ripple" chp-id="[0-9]+"></div></div>
-<div class="mdc-select" data-mdc-auto-init="MDCSelect" chp-id="[0-9]+">
-<select name="media" required id="id_media" class="mdc-select__native-control" chp-id="[0-9]+">
-<option value="" disabled chp-id="[0-9]+"></option><optgroup label="Audio" chp-id="[0-9]+"><option value="vinyl" selected chp-id="[0-9]+">Vinyl</option><option value="cd" chp-id="[0-9]+">CD</option><option value="mp3" chp-id="[0-9]+">MP3</option></optgroup><optgroup label="Video" chp-id="[0-9]+"><option value="vhs" chp-id="[0-9]+">VHS tape</option><option value="dvd" chp-id="[0-9]+">DVD</option><option value="blu-ray" chp-id="[0-9]+">Blu-ray</option></optgroup>
+<div class="mdc-layout-grid" chp-id="\d+">
+<div class="mdc-layout-grid__inner" chp-id="\d+">
+<div class="mdc-layout-grid__cell--span-12" chp-id="\d+">
+<form id="form-chp" method="POST" chp-id="\d+">
+<input type="hidden" name="csrfmiddlewaretoken" value="\w+" chp-id="\d+" />
+<div style="display: flex;" chp-id="\d+">
+<div class="mdc-form-field mdc-form-field--align-end" data-mdc-auto-init="MDCFormField" chp-id="\d+">
+<div class="mdc-checkbox" data-mdc-auto-init="MDCCheckbox" chp-id="\d+"><input name="checkbox" id="id_checkbox" checked class="mdc-checkbox__native-control" type="checkbox" chp-id="\d+" />
+<div class="mdc-checkbox__background" chp-id="\d+"></div></div><label for="id_checkbox" chp-id="\d+">This is my checkbox:</label></div>
+<div class="mdc-text-field" data-mdc-auto-init="MDCTextField" chp-id="\d+"><input name="text" value="Initial value" maxlength="\d+" required id="id_text" class="mdc-text-field__input" type="text" chp-id="\d+" />
+<label for="id_text" class="mdc-floating-label" chp-id="\d+">Input Label:</label>
+<div class="mdc-line-ripple" chp-id="\d+"></div></div>
+<div class="mdc-text-field" data-mdc-auto-init="MDCTextField" chp-id="\d+"><input name="date" value="2018-10-03" required id="id_date" class="mdc-text-field__input" type="date" chp-id="\d+" />
+<label for="id_date" class="mdc-floating-label" chp-id="\d+">Type = date:</label>
+<div class="mdc-line-ripple" chp-id="\d+"></div></div>
+<div class="mdc-select" data-mdc-auto-init="MDCSelect" chp-id="\d+">
+<select name="media" required id="id_media" class="mdc-select__native-control" chp-id="\d+">
+<option value="" disabled chp-id="\d+"></option><optgroup label="Audio" chp-id="\d+"><option value="vinyl" selected chp-id="\d+">Vinyl</option><option value="cd" chp-id="\d+">CD</option><option value="mp3" chp-id="\d+">MP3</option></optgroup><optgroup label="Video" chp-id="\d+"><option value="vhs" chp-id="\d+">VHS tape</option><option value="dvd" chp-id="\d+">DVD</option><option value="blu-ray" chp-id="\d+">Blu-ray</option></optgroup>
 </select>
-<label for="id_media" class="mdc-floating-label" chp-id="[0-9]+">Media:</label>
-<div class="mdc-line-ripple" chp-id="[0-9]+"></div></div>
-<div class="mdc-select" data-mdc-auto-init="MDCSelect" chp-id="[0-9]+">
-<select name="foreignkey" required id="id_foreignkey" class="mdc-select__native-control" chp-id="[0-9]+">
-<option value="" selected disabled chp-id="[0-9]+"></option>
+<label for="id_media" class="mdc-floating-label" chp-id="\d+">Media:</label>
+<div class="mdc-line-ripple" chp-id="\d+"></div></div>
+<div class="mdc-select" data-mdc-auto-init="MDCSelect" chp-id="\d+">
+<select name="foreignkey" required id="id_foreignkey" class="mdc-select__native-control" chp-id="\d+">
+<option value="" selected disabled chp-id="\d+"></option>
 </select>
-<label for="id_foreignkey" class="mdc-floating-label" chp-id="[0-9]+">Foreignkey:</label>
-<div class="mdc-line-ripple" chp-id="[0-9]+"></div></div></div>
-<div style="display: grid;" chp-id="[0-9]+">
-<div class="mdc-button" data-mdc-auto-init="None" chp-id="[0-9]+"><button form="form-chp" type="submit" chp-id="[0-9]+">Submit</button></div></div>
+<label for="id_foreignkey" class="mdc-floating-label" chp-id="\d+">Foreignkey:</label>
+<div class="mdc-line-ripple" chp-id="\d+"></div></div></div>
+<div style="display: grid;" chp-id="\d+">
+<div class="mdc-button" data-mdc-auto-init="None" chp-id="\d+"><button form="form-chp" type="submit" chp-id="\d+">Submit</button></div></div>
 </form></div></div></div>
 """
     regex = regex.replace("\n", "")

@@ -17,7 +17,7 @@ INSTALLED_APPS = [
     'chp.django.example.todos',
     'crudlfap',
 ]
-
+ALLOWED_HOSTS = ['localhost', 'vm-mdc']
 STATIC_URL = '/static/'
 BASE_DIR = os.path.dirname(__file__)
 STATICFILES_DIRS = [
@@ -38,6 +38,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'chp.django.threadlocals.ThreadLocalMiddleware',
 ]
 TEMPLATES = [
     {
