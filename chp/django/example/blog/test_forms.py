@@ -5,8 +5,8 @@ from chp.django.example.blog.forms import PostForm
 from chp.mdc.django.factory import Factory as MdcField
 from chp.pyreact import render_element
 
-
 pytestmark = pytest.mark.django_db
+user_name = "rofl"
 
 
 @pytest.fixture(scope="module")
@@ -16,7 +16,7 @@ def postform():
         "text": "Initial value",
         "date": "2018-10-03",
         "media": "vinyl",
-        # "foreignkey": ""  # will require database setup fixture
+        "foreignkey": user_name
         })
 
 
@@ -55,7 +55,7 @@ def test_render(postform):
 <div class="mdc-line-ripple" chp-id="\d+"></div></div>
 <div class="mdc-select" data-mdc-auto-init="MDCSelect" chp-id="\d+">
 <select name="foreignkey" required id="id_foreignkey" class="mdc-select__native-control" chp-id="\d+">
-<option value="" selected disabled chp-id="\d+"></option>
+<option value="" disabled chp-id="\d+"></option>
 </select>
 <label for="id_foreignkey" class="mdc-floating-label" chp-id="\d+">Foreignkey:</label>
 <div class="mdc-line-ripple" chp-id="\d+"></div></div></div>
@@ -140,12 +140,16 @@ def test_render_media(postform):
 
 # TODO: needs a fixture to create database entries
 def test_render_foreignkey(postform):
+    from django.contrib.auth.models import User
+    User.objects.create(username=user_name)
+
     fld = MdcField.render(postform["foreignkey"])
     html = render_element(fld)
-    test_str = """
+    test_str = f"""
 <div class="mdc-select" data-mdc-auto-init="MDCSelect">
  <select name="foreignkey" required id="id_foreignkey" class="mdc-select__native-control">
-  <option value="" selected disabled></option>
+  <option value="" disabled></option>
+  <option value="1">{user_name}</option>
  </select>
  <label for="id_foreignkey" class="mdc-floating-label">Foreignkey:</label>
  <div class="mdc-line-ripple"></div>
