@@ -53,8 +53,7 @@ class PostForm(forms.ModelForm):
                         Flex([],
                              [
                              SubmitButton([cp("form", "form-chp")]),
-                             ],
-                             {"display": "grid"}),
+                             ]),
                     ])
                 ])  # Cell
                 ])  # Row

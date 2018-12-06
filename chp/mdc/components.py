@@ -224,13 +224,10 @@ def InputField(props=[], children=[], context={}):
 
 def SubmitButton(props=[], children=[]):
     """Wrap a submit button in an MDC field."""
+    props.append(
+        cp("class", "mdc-button"))
     ast = chp.SubmitButton(props, children)
-    props_div = [
-        cp("class", "mdc-button"),
-        cp("data-mdc-auto-init", None),
-    ]
-    children_div = [ast]
-    return Div(props_div, children_div)
+    return ast
 
 
 def Select(props=[], children=[]):

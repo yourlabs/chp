@@ -59,8 +59,8 @@ def test_render(postform):
 </select>
 <label for="id_foreignkey" class="mdc-floating-label" chp-id="\d+">Foreignkey:</label>
 <div class="mdc-line-ripple" chp-id="\d+"></div></div></div>
-<div style="display: grid;" chp-id="\d+">
-<div class="mdc-button" data-mdc-auto-init="None" chp-id="\d+"><button form="form-chp" type="submit" chp-id="\d+">Submit</button></div></div>
+<div style="display: flex;" chp-id="\d+">
+<button form="form-chp" class="mdc-button" type="submit" chp-id="\d+">Submit</button></div>
 </form></div></div></div>
 """
     regex = regex.replace("\n", "")
