@@ -186,6 +186,8 @@ def id_middleware(ast, *args):
 def render_ast(ast, ast_middleware, render_middleware):
 
     ast = ast_middleware(ast)
+    if ast == {}:
+        return ""
 
     props = ast["props"]
 

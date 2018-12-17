@@ -1,3 +1,5 @@
+from datetime import date
+
 from django import forms
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -27,9 +29,36 @@ class PostForm(forms.ModelForm):
             "date": _("Type = date"),
         }
 
+    def clean_date(self):
+        data = self.cleaned_data["date"]
+        max_date = date(2000, 1, 1)
+        if data >= max_date:
+            raise forms.ValidationError(
+                _("Date must be less than %(max_date)s"),
+                code="max_date",
+                params={"max_date": max_date.strftime("%d/%m/%Y")}
+            )
+        return data
+
+    def clean(self):
+        if self.cleaned_data.get("text", None) == "Error":
+            raise forms.ValidationError(
+                _("General form error."),
+                code="invalid_form"
+            )
+
     def FormSchema(self, *args, **kwargs):
 
         def render(self, *args, **kwargs):
+
+            def mdc(f):
+                return MdcField.render(self[f])
+
+            def errors(f):
+                return MdcField.errors(self[f])
+
+            def non_field_errors(self):
+                return MdcField.non_field_errors(self)
 
             form = (
                 Grid([], [
@@ -43,22 +72,33 @@ class PostForm(forms.ModelForm):
                         Csrf(),
                         Flex([],
                              [
-                             # Div([], str(self.errors)),
-                             MdcField.render(self["checkbox"]),
-                             MdcField.render(self["text"]),
-                             MdcField.render(self["date"]),
-                             MdcField.render(self["media"]),
-                             MdcField.render(self["foreignkey"]),
-                             ]),
+                             non_field_errors(self),
+                             mdc("checkbox"),
+                             errors("checkbox"),
+                             mdc("text"),
+                             errors("text"),
+                             mdc("date"),
+                             errors("date"),
+                             mdc("media"),
+                             errors("media"),
+                             mdc("foreignkey"),
+                             errors("foreignkey"),
+
+                             # MdcField.render(self["checkbox"]),
+                             # MdcField.render(self["text"]),
+                             # MdcField.render(self["date"]),
+                             # MdcField.render(self["media"]),
+                             # MdcField.render(self["foreignkey"]),
+                             ], {"display": "grid"}),
                         Flex([],
                              [
                              SubmitButton([cp("form", "form-chp")]),
                              ]),
                     ])
-                ])  # Cell
+                ], {"span": 6})  # Cell
                 ])  # Row
                 ])  # Grid
-            )
+            )  # noqa
 
             return form
 

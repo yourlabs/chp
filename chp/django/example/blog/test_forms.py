@@ -1,6 +1,10 @@
 import pytest
 import re
 
+from django.core.exceptions import ValidationError
+from django.test import TestCase
+
+from chp.components import Div
 from chp.django.example.blog.forms import PostForm
 from chp.mdc.django.factory import Factory as MdcField
 from chp.pyreact import render_element
@@ -28,10 +32,11 @@ def postform_html(postform):
     # return postform.render()
     pass
 
+
 def test_render(postform):
     """Regression test."""
 
-    regex = """
+    regex = r"""
 <div class="mdc-layout-grid" chp-id="\d+">
 <div class="mdc-layout-grid__inner" chp-id="\d+">
 <div class="mdc-layout-grid__cell--span-12" chp-id="\d+">
@@ -62,7 +67,7 @@ def test_render(postform):
 <div style="display: flex;" chp-id="\d+">
 <button form="form-chp" class="mdc-button" type="submit" chp-id="\d+">Submit</button></div>
 </form></div></div></div>
-"""
+"""  # noqa
     regex = regex.replace("\n", "")
     regexc = re.compile(regex)
     assert re.match(regexc, postform.render()) is not None
@@ -79,8 +84,8 @@ def test_render_checkbox(postform):
  </div>
  <label for="id_checkbox">This is my checkbox:</label>
 </div>
-"""
-    test_str = re.sub("\n\s*", "", test_str)
+"""  # noqa
+    test_str = re.sub(r"\n\s*", "", test_str)
     assert html == test_str
 
 
@@ -93,8 +98,8 @@ def test_render_text(postform):
  <label for="id_text" class="mdc-floating-label">Input Label:</label>
  <div class="mdc-line-ripple"></div>
 </div>
-"""
-    test_str = re.sub("\n\s*", "", test_str)
+"""  # noqa
+    test_str = re.sub(r"\n\s*", "", test_str)
     assert html == test_str
 
 
@@ -107,8 +112,8 @@ def test_render_date(postform):
  <label for="id_date" class="mdc-floating-label">Type = date:</label>
  <div class="mdc-line-ripple"></div>
 </div>
-"""
-    test_str = re.sub("\n\s*", "", test_str)
+"""  # noqa
+    test_str = re.sub(r"\n\s*", "", test_str)
     assert html == test_str
 
 
@@ -133,8 +138,8 @@ def test_render_media(postform):
  <label for="id_media" class="mdc-floating-label">Media:</label>
  <div class="mdc-line-ripple"></div>
 </div>
-"""
-    test_str = re.sub("\n\s*", "", test_str)
+"""  # noqa
+    test_str = re.sub(r"\n\s*", "", test_str)
     assert html == test_str
 
 
@@ -154,6 +159,43 @@ def test_render_foreignkey(postform):
  <label for="id_foreignkey" class="mdc-floating-label">Foreignkey:</label>
  <div class="mdc-line-ripple"></div>
 </div>
-"""
-    test_str = re.sub("\n\s*", "", test_str)
+"""  # noqa
+    test_str = re.sub(r"\n\s*", "", test_str)
+    assert html == test_str 
+
+
+def test_render_form_errors():
+    # Receive form with initial values
+    # POST form to create view
+    # Compare form.errors with MdcField(form.errors)
+    postform = PostForm({})  # should yield an invalid form
+    test_field = "date"
+    postform.is_valid()  # ignore result
+    invalid_msg = postform[test_field].field.error_messages["invalid"]
+    postform.add_error(test_field,
+                       ValidationError(invalid_msg, code="invalid"))
+    err_msg = "<br />".join(postform.errors[test_field])
+    ast_fld = MdcField.render(postform[test_field])
+    ast_err = MdcField.errors(postform[test_field])
+    ast = Div([], [ast_fld, ast_err])
+    html = render_element(ast)
+
+    test_str = f"""
+<div>
+<div class="mdc-text-field mdc-text-field--invalid" data-mdc-auto-init="MDCTextField">
+ <input name="date" required id="id_date" class="mdc-text-field__input" type="date" />
+ <label for="id_date" class="mdc-floating-label">Type = date:</label>
+ <div class="mdc-line-ripple"></div>
+</div>
+<p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent mdc-text-field-helper-text--validation-msg" id="{test_field}-validation-msg">{err_msg}</p>
+</div>
+"""  # noqa
+    test_str = re.sub(r"\n\s*", "", test_str)
     assert html == test_str
+
+
+class FormTest(TestCase):
+    def test_uses_post_form_template(self):
+        response = self.client.get("/blog/post/create")
+        self.assertTemplateUsed(response, "blog/post_form.html")
+

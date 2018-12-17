@@ -43,12 +43,13 @@ def Row(props=[], children=[]):
     return Div(props, children)
 
 
-def Cell(props=[], children=[]):
+def Cell(props=[], children=[], context={}):
     """Start the MDC grid cell.
 
     Set the span to 12 columns as a sensible default."""
+    span = context.get("span", 12)
     props.append(
-        cp('class', 'mdc-layout-grid__cell--span-12')
+        cp('class', f'mdc-layout-grid__cell--span-{span}')
     )
     return Div(props, children)
 
@@ -215,10 +216,18 @@ def InputField(props=[], children=[], context={}):
     Requires context["type"] to lookup MDC classes."""
     el_type = context.get("type", "text")
     mdc_type = MDC_TYPE_MAP[el_type]
+    mdc_class = mdc_type["class"]
+
+    # if there are erorrs, add --invalid class.
+    if context["errors"]:
+        mdc_invalid = "mdc-text-field--invalid"
+        mdc_class = f"{mdc_class} {mdc_invalid}"
+
     props_field = [
-        cp("class", mdc_type["class"]),
+        cp("class", mdc_class),
         cp("data-mdc-auto-init", mdc_type["init"]),
     ]
+
     return Div(props_field, children)
 
 

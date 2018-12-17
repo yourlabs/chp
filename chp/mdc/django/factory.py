@@ -70,9 +70,46 @@ class Factory:
              'type':
                 context['widget'].get('type',
                                       field.field.widget.input_type),
+             'errors': getattr(field, "errors", None),
              })
 
         return mdc_render(context)
+
+    @staticmethod
+    def non_field_errors(form):
+        errs = form.errors.get("__all__", form.error_class())
+        if errs == []:
+            return {}
+        props = []
+        props.extend([
+            cp("class", "errorlist nonfield"),
+            ])
+        error_msg = "<br />".join(errs)
+        return chp.Para(props, error_msg)
+
+    @staticmethod
+    def errors(field):
+        """<p class="mdc-text-field-helper-text
+        mdc-text-field-helper-text--persistent
+        mdc-text-field-helper-text--validation-msg"
+        id="{test_field}-validation-msg"
+        role="alert">
+        {invalid_msg}</p>
+        """
+        # errs = getattr(field, "errors", None)
+        errs = field.form.errors.get(field.name, field.form.error_class())
+        if errs == []:
+            return {}
+        props = []
+        props.extend([
+            cp("class",
+               " ".join(["mdc-text-field-helper-text",
+                         "mdc-text-field-helper-text--persistent",
+                         "mdc-text-field-helper-text--validation-msg"])),
+            cp("id", f"{field.name}-validation-msg"),
+            ])
+        error_msg = "<br />".join(errs)
+        return chp.Para(props, error_msg)
 
     @staticmethod
     def mdc_checkboxinput(context):
@@ -147,6 +184,8 @@ class Factory:
             for option in group_choices:
                 props_option = []
                 option_label = option["label"]
+                # override any 'empty_label' as MDC floating label will be
+                # displayed instead.
                 if option["value"] == "":
                     option_label = ""
                 props_option.append(
@@ -156,9 +195,11 @@ class Factory:
                 children_group.append(
                     chp.Option(props_option, option_label))
 
+            # build list of optgroups
             if group_name:
                 children.append(
                     chp.Optgroup(props_group, children_group))
+            # or simple list of options
             else:
                 children.extend(children_group)
 

@@ -5,6 +5,10 @@ def Div(props=[], children=[]):
     return ce('div', props, children)
 
 
+def Para(props=[], children=[]):
+    return ce('p', props, children)
+
+
 def Button(props=[], children=[]):
     props.append(
         cp('type', 'button'))
@@ -80,7 +84,7 @@ def Select(props=[], children=[]):
         try:
             props_option = children[0]["props"]
             option_value = get_prop(props_option, "value")
-            if (option_value is None 
+            if (option_value is None
                     or option_value["value"] == ""):
                 props_option.append(
                     cp("disabled", True))
