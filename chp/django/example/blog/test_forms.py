@@ -39,10 +39,10 @@ def test_render(postform):
     regex = r"""
 <div class="mdc-layout-grid" chp-id="\d+">
 <div class="mdc-layout-grid__inner" chp-id="\d+">
-<div class="mdc-layout-grid__cell--span-12" chp-id="\d+">
+<div class="mdc-layout-grid__cell--span-6" chp-id="\d+">
 <form id="form-chp" method="POST" chp-id="\d+">
 <input type="hidden" name="csrfmiddlewaretoken" value="\w+" chp-id="\d+" />
-<div style="display: flex;" chp-id="\d+">
+<div style="display: grid;" chp-id="\d+">
 <div class="mdc-form-field mdc-form-field--align-end" data-mdc-auto-init="MDCFormField" chp-id="\d+">
 <div class="mdc-checkbox" data-mdc-auto-init="MDCCheckbox" chp-id="\d+"><input name="checkbox" id="id_checkbox" checked class="mdc-checkbox__native-control" type="checkbox" chp-id="\d+" />
 <div class="mdc-checkbox__background" chp-id="\d+"></div></div><label for="id_checkbox" chp-id="\d+">This is my checkbox:</label></div>
