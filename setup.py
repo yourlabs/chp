@@ -12,11 +12,13 @@ def read(fname):
 
 setup(
     name='chp',
-    version='0.0.1',
+    version='0.0.2',
     description='Composable HTML in Python',
     author='Thomas Binetruy',
     author_email='tbinetruy@gmail.com',
-    url='https://github.com/tbinetruy/CHIP',
+    maintainer='John Kirkwood',
+    maintainer_email='jkirkwood@kclinfo.com',
+    url='https://yourlabs.io/oss/chp',
     packages=find_packages(),
     include_package_data=True,
     long_description=read('README.org'),
@@ -49,7 +51,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Software Development :: Libraries :: Python Modules',
