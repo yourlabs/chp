@@ -1,14 +1,14 @@
-const autoprefixer = require('autoprefixer')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
-var path = require('path')
+const autoprefixer = require('autoprefixer');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+var path = require('path');
 const extractSass = new ExtractTextPlugin({
-  filename: 'main.css',
-})
+  filename: 'output.css',
+});
 
 module.exports = {
   mode: 'development',
   devtool: 'source-map',
-  entry: './main.js',
+  entry: ['./main.js', './main.scss'],
   output: {
     filename: 'output.js',
     path: path.resolve(__dirname, 'blog/static')
@@ -20,8 +20,12 @@ module.exports = {
 //   },  
   module: {
     rules: [
-      { test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: 'url-loader?limit=10000&mimetype=application/font-woff' },
-      { test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: 'file-loader' },
+      { 
+        test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        loader: 'url-loader?limit=10000&mimetype=application/font-woff' },
+      { 
+        test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        loader: 'file-loader' },
       {
         test: /\.py$/,
         loader: 'py-loader',
@@ -43,14 +47,16 @@ module.exports = {
               loader: 'postcss-loader',
               options: {
                 sourceMap: true,
-                plugins: () => [autoprefixer()]
+                plugins: () => [autoprefixer({grid: false})]
               }
             },
             {
               loader: 'sass-loader',
               options: {
                 sourceMap: true,
-                includePaths: ['./node_modules']
+                includePaths: [
+                  path.resolve(__dirname, 'node_modules')
+                ]
               }
             }
           ]
@@ -61,4 +67,4 @@ module.exports = {
   plugins: [
     extractSass
   ]
-}
+};
