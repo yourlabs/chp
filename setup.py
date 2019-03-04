@@ -21,7 +21,7 @@ setup(
     url='https://yourlabs.io/oss/chp',
     packages=find_packages(),
     include_package_data=True,
-    long_description=read('README.org'),
+    long_description=read('README.rst'),
     license='MIT',
     keywords='html',
     tests_require=['tox'],
