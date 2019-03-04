@@ -1,5 +1,5 @@
 * Description
-Very basic Python functions to generate HTML in a compasable way.
+Very basic Python functions to generate HTML in a composable way.
 
 * Usage
 
@@ -39,7 +39,7 @@ render_element(l)
 #+RESULTS:
 : <a  href="yourlabs.org"><span >YourLabs</span></a>
 
-Let us now define a Menu component that will create links inside of a nav element based on some input. Let's also rename out ~create_element~ and ~create_prop~ functions to ~ce~ and ~cp~ respectively
+Let us now define a Menu component that will create links inside of a nav element based on some input. Let's also rename our ~create_element~ and ~create_prop~ functions to ~ce~ and ~cp~ respectively.
 
 #+begin_src python :session
 ce = create_element
@@ -72,6 +72,7 @@ render_element(m)
 #+RESULTS:
 
 Pretty printed, this final output is:
+
 #+begin_src html
 <nav class="menu">
   <a href="yourlabs.org">
@@ -83,9 +84,10 @@ Pretty printed, this final output is:
 </nav>
 #+end_src
 
-Feel free to check out the app.py and components.py files to see how a full page can be built easily using this method. The app.py file writes the html output to another file called output.html.
+Feel free to check out the ~app.py~ and ~components.py~ files to see how a full page can be built easily using this method. The ~app.py~ file writes the html output to another file called ~output.html~.
 
 * Trying it
+
 #+begin_src bash
 git clone git@github.com:tbinetruy/CHIP.git
 cd CHIP
@@ -97,10 +99,13 @@ firefox output.html
 * Examples
 
 To run the example project:
-- pip install --user --editable path/to/chp[dev]
-- yarn install; yarn start
-- chp-django runserver
-- py.test path/to/chp
+
+#+begin_src bash
+pip install --user --editable path/to/chp[dev]
+yarn install; yarn start
+chp-django runserver
+py.test path/to/chp
+#+end_src
 
 #+begin_src python
 import chp
