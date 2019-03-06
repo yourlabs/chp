@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -28,7 +29,7 @@ class Post(models.Model):
     date = models.DateField()
     media = models.CharField(max_length=12,
                              choices=MEDIA_CHOICES)
-    foreignkey = models.ForeignKey('auth.User', models.CASCADE)
+    foreignkey = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE)
 
     class Meta:
         ordering = ['text']

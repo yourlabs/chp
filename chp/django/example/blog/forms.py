@@ -1,19 +1,17 @@
 from datetime import date
 
 from django import forms
-from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-# from chp import chp
 from chp.components import *  #noqa
 from chp.pyreact import (
     context_middleware, inject_ids, render_element
 )
-from chp.store import (create_store, Inject_ast_into_DOM, render_app)
+# from chp.store import (create_store, Inject_ast_into_DOM, render_app)
 from chp.django.components import Csrf
 from chp.mdc.components import *  # noqa
-from chp.mdc.django.factory import Factory as MdcField
+from chp.mdc.django.factory import Factory
 
 from .models import Post
 
@@ -28,20 +26,28 @@ class PostForm(forms.ModelForm):
             "text": _("Input Label"),
             "date": _("Type = date"),
         }
+        help_texts = {
+            "text": _(
+                "Enter 'Error' to raise a general form error on submit"),
+            "date": _(
+                "Enter a date earlier than today"),
+            "media": _(
+                "Select a media format from the dropdown list"),
+        }
 
     def clean_date(self):
         data = self.cleaned_data["date"]
-        max_date = date(2000, 1, 1)
+        max_date = date.today()
         if data >= max_date:
             raise forms.ValidationError(
-                _("Date must be less than %(max_date)s"),
+                _("Date must be earlier than %(max_date)s"),
                 code="max_date",
                 params={"max_date": max_date.strftime("%d/%m/%Y")}
             )
         return data
 
     def clean(self):
-        if self.cleaned_data.get("text", None) == "Error":
+        if self.cleaned_data.get("text", "").lower() == "error":
             raise forms.ValidationError(
                 _("General form error."),
                 code="invalid_form"
@@ -52,13 +58,16 @@ class PostForm(forms.ModelForm):
         def render(self, *args, **kwargs):
 
             def mdc(f):
-                return MdcField.render(self[f])
+                return Factory.render(self[f])
 
             def errors(f):
-                return MdcField.errors(self[f])
+                return Factory.errors(self[f])
+
+            def help_text(f):
+                return Factory.help_text(self[f])
 
             def non_field_errors(self):
-                return MdcField.non_field_errors(self)
+                return Factory.non_field_errors(self)
 
             form = (
                 Grid([], [
@@ -75,20 +84,19 @@ class PostForm(forms.ModelForm):
                              non_field_errors(self),
                              mdc("checkbox"),
                              errors("checkbox"),
+                             help_text("checkbox"),
                              mdc("text"),
                              errors("text"),
+                             help_text("text"),
                              mdc("date"),
                              errors("date"),
+                             help_text("date"),
                              mdc("media"),
                              errors("media"),
+                             help_text("media"),
                              mdc("foreignkey"),
                              errors("foreignkey"),
-
-                             # MdcField.render(self["checkbox"]),
-                             # MdcField.render(self["text"]),
-                             # MdcField.render(self["date"]),
-                             # MdcField.render(self["media"]),
-                             # MdcField.render(self["foreignkey"]),
+                             help_text("foreignkey"),
                              ], {"display": "grid"}),
                         Flex([],
                              [

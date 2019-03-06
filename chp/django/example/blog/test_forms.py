@@ -43,21 +43,24 @@ def test_render(postform):
 <form id="form-chp" method="POST" chp-id="\d+">
 <input type="hidden" name="csrfmiddlewaretoken" value="\w+" chp-id="\d+" />
 <div style="display: grid;" chp-id="\d+">
-<div class="mdc-form-field mdc-form-field--align-end" data-mdc-auto-init="MDCFormField" chp-id="\d+">
+<div class="mdc-form-field mdc-form-field--align-left" data-mdc-auto-init="MDCFormField" chp-id="\d+">
 <div class="mdc-checkbox" data-mdc-auto-init="MDCCheckbox" chp-id="\d+"><input name="checkbox" id="id_checkbox" checked class="mdc-checkbox__native-control" type="checkbox" chp-id="\d+" />
 <div class="mdc-checkbox__background" chp-id="\d+"></div></div><label for="id_checkbox" chp-id="\d+">This is my checkbox:</label></div>
 <div class="mdc-text-field" data-mdc-auto-init="MDCTextField" chp-id="\d+"><input name="text" value="Initial value" maxlength="\d+" required id="id_text" class="mdc-text-field__input" type="text" chp-id="\d+" />
 <label for="id_text" class="mdc-floating-label" chp-id="\d+">Input Label:</label>
 <div class="mdc-line-ripple" chp-id="\d+"></div></div>
-<div class="mdc-text-field" data-mdc-auto-init="MDCTextField" chp-id="\d+"><input name="date" value="2018-10-03" required id="id_date" class="mdc-text-field__input" type="date" chp-id="\d+" />
+<div class="mdc-text-field-helper-line" chp-id="\d+"><div class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" id="text-helper-text" chp-id="\d+">Enter &#39;Error&#39; to raise a general form error on submit</div></div>
+<div class="mdc-text-field" data-mdc-auto-init="MDCTextField" chp-id="\d+"><input name="date" value="\d+-\d+-\d+" required id="id_date" class="mdc-text-field__input" type="date" chp-id="\d+" />
 <label for="id_date" class="mdc-floating-label" chp-id="\d+">Type = date:</label>
 <div class="mdc-line-ripple" chp-id="\d+"></div></div>
+<div class="mdc-text-field-helper-line" chp-id="\d+"><div class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" id="date-helper-text" chp-id="\d+">Enter a date earlier than today</div></div>
 <div class="mdc-select" data-mdc-auto-init="MDCSelect" chp-id="\d+">
 <select name="media" required id="id_media" class="mdc-select__native-control" chp-id="\d+">
 <option value="" disabled chp-id="\d+"></option><optgroup label="Audio" chp-id="\d+"><option value="vinyl" selected chp-id="\d+">Vinyl</option><option value="cd" chp-id="\d+">CD</option><option value="mp3" chp-id="\d+">MP3</option></optgroup><optgroup label="Video" chp-id="\d+"><option value="vhs" chp-id="\d+">VHS tape</option><option value="dvd" chp-id="\d+">DVD</option><option value="blu-ray" chp-id="\d+">Blu-ray</option></optgroup>
 </select>
 <label for="id_media" class="mdc-floating-label" chp-id="\d+">Media:</label>
 <div class="mdc-line-ripple" chp-id="\d+"></div></div>
+<div class="mdc-text-field-helper-line" chp-id="\d+"><div class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" id="media-helper-text" chp-id="\d+">Select a media format from the dropdown list</div></div>
 <div class="mdc-select" data-mdc-auto-init="MDCSelect" chp-id="\d+">
 <select name="foreignkey" required id="id_foreignkey" class="mdc-select__native-control" chp-id="\d+">
 <option value="" disabled chp-id="\d+"></option>
@@ -77,7 +80,7 @@ def test_render_checkbox(postform):
     fld = MdcField.render(postform["checkbox"])
     html = render_element(fld)
     test_str = """
-<div class="mdc-form-field mdc-form-field--align-end" data-mdc-auto-init="MDCFormField">
+<div class="mdc-form-field mdc-form-field--align-left" data-mdc-auto-init="MDCFormField">
  <div class="mdc-checkbox" data-mdc-auto-init="MDCCheckbox">
   <input name="checkbox" id="id_checkbox" checked class="mdc-checkbox__native-control" type="checkbox" />
   <div class="mdc-checkbox__background"></div>
@@ -145,8 +148,9 @@ def test_render_media(postform):
 
 # TODO: needs a fixture to create database entries
 def test_render_foreignkey(postform):
-    from django.contrib.auth.models import User
-    User.objects.create(username=user_name)
+    from django.contrib.auth import get_user_model
+    user_model = get_user_model()
+    user_model.objects.create(username=user_name)
 
     fld = MdcField.render(postform["foreignkey"])
     html = render_element(fld)
@@ -187,7 +191,7 @@ def test_render_form_errors():
  <label for="id_date" class="mdc-floating-label">Type = date:</label>
  <div class="mdc-line-ripple"></div>
 </div>
-<p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent mdc-text-field-helper-text--validation-msg" id="{test_field}-validation-msg">{err_msg}</p>
+<div class="mdc-text-field-helper-line"><div class="mdc-text-field-helper-text--validation-msg mdc-text-field-helper-text mdc-text-field-helper-text--persistent" class="mdc-text-field-helper-text--validation-msg" id="{test_field}-helper-text">{err_msg}</div></div>
 </div>
 """  # noqa
     test_str = re.sub(r"\n\s*", "", test_str)

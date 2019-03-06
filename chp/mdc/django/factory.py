@@ -84,32 +84,39 @@ class Factory:
         props.extend([
             cp("class", "errorlist nonfield"),
             ])
-        error_msg = "<br />".join(errs)
-        return chp.Para(props, error_msg)
+        return mdc.ValidationText(props, [],
+                                  {"errors": errs,})
+        # error_msg = "<br />".join(errs)
+        # return chp.Para(props, error_msg)
 
     @staticmethod
     def errors(field):
-        """<p class="mdc-text-field-helper-text
-        mdc-text-field-helper-text--persistent
-        mdc-text-field-helper-text--validation-msg"
-        id="{test_field}-validation-msg"
-        role="alert">
-        {invalid_msg}</p>
-        """
-        # errs = getattr(field, "errors", None)
+        """Render a field validation message."""
         errs = field.form.errors.get(field.name, field.form.error_class())
+
         if errs == []:
             return {}
-        props = []
-        props.extend([
-            cp("class",
-               " ".join(["mdc-text-field-helper-text",
-                         "mdc-text-field-helper-text--persistent",
-                         "mdc-text-field-helper-text--validation-msg"])),
-            cp("id", f"{field.name}-validation-msg"),
-            ])
-        error_msg = "<br />".join(errs)
-        return chp.Para(props, error_msg)
+        return mdc.ValidationText([], [],
+                                  {"name": field.name,
+                                   "errors": errs,})
+
+    @staticmethod
+    def help_text(field):
+        """Render a field help_text."""
+        # MDC design: don't show help if there is an error to display.
+        errs = field.form.errors.get(field.name, field.form.error_class())
+        if errs:
+            return {}
+
+        help_text = field.help_text
+        if help_text == "":
+            return {}
+        # cast any lazy translation strings
+        if isinstance(help_text, Promise):
+            help_text = conditional_escape(help_text)
+
+        return mdc.HelperText([], help_text,
+                              {"name": field.name})
 
     @staticmethod
     def mdc_checkboxinput(context):

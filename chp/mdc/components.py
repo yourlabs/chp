@@ -77,7 +77,7 @@ def FormField(children=[]):
     Only required for checkbox and radio button fields
     """
     props = [
-        cp("class", "mdc-form-field mdc-form-field--align-end"),
+        cp("class", "mdc-form-field mdc-form-field--align-left"),
         cp("data-mdc-auto-init", "MDCFormField"),
     ]
     return Div(props, children)
@@ -218,7 +218,7 @@ def InputField(props=[], children=[], context={}):
     mdc_type = MDC_TYPE_MAP[el_type]
     mdc_class = mdc_type["class"]
 
-    # if there are erorrs, add --invalid class.
+    # if there are errors, add --invalid class.
     if context["errors"]:
         mdc_invalid = "mdc-text-field--invalid"
         mdc_class = f"{mdc_class} {mdc_invalid}"
@@ -272,3 +272,56 @@ def SelectField(props=[], children=[], context={}):
         children_field.append(ast_label)
     children_field.append(LineRipple())
     return InputField([], children_field, context)
+
+
+def HelperText(props=[], children=[], context={}):
+    """Add MDC classes to help text for an input field.
+
+    Use 'name' from 'context' to link the text to an input  field.
+    <div class="mdc-text-field-helper-line">
+      <div id="{field_name}-helper-text"
+        class="mdc-text-field-helper-text
+          mdc-text-field-helper-text--persistent
+          mdc-text-field-helper-text--validation-msg"
+        aria-hidden="true">
+        {message}
+      </div>
+    </div>
+    """
+    field_name = context.get("name", "")
+
+    classes = chp.get_prop(props, "class")
+    if classes is None:
+        classes = []
+    else:
+        classes = classes["value"]
+        if isinstance(classes, (str,)):
+            classes = [classes]
+
+    classes.extend([
+        "mdc-text-field-helper-text",
+        "mdc-text-field-helper-text--persistent",
+    ])
+    # prepend new 'class' prop to supercede original entry in list.
+    # TODO: add set_prop() functionality?
+    props = [cp("class", " ".join(classes))] + props
+    sep = "-"
+    props.append(
+        cp("id",
+           f"{(field_name + sep) if field_name else 'non-field-'}helper-text")
+    )
+    children_line = [chp.Div(props, children)]
+
+    props_line = [cp("class", "mdc-text-field-helper-line"),]
+    return chp.Div(props_line, children_line)
+
+def ValidationText(props=[], children=[], context={}):
+    """Add MDC classes to validation text for an input field.
+    
+    Use 'name' from 'context' to link to an input field and display 'errors'."""
+    props = [
+        cp("class", "mdc-text-field-helper-text--validation-msg"),
+    ]
+
+    children = "<br />".join(context.get("errors", []))
+    return HelperText(props, children, context)

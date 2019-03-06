@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.urls.base import reverse_lazy
 from django.views import generic
 
@@ -10,10 +12,11 @@ class PostCreateView(generic.CreateView):
     model = Post
 
     def get_initial(self):
-        initial = super(PostCreateView, self).get_initial()
+        initial = super().get_initial()
         initial.update({
             'checkbox': True,
             'text': 'Initial value',
+            'date': date.today(),
             'media': Post.VHS,
             })
         return initial
