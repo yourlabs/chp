@@ -277,16 +277,17 @@ def SelectField(props=[], children=[], context={}):
 def HelperText(props=[], children=[], context={}):
     """Add MDC classes to help text for an input field.
 
-    Use 'name' from 'context' to link the text to an input  field.
-    <div class="mdc-text-field-helper-line">
-      <div id="{field_name}-helper-text"
-        class="mdc-text-field-helper-text
-          mdc-text-field-helper-text--persistent
-          mdc-text-field-helper-text--validation-msg"
-        aria-hidden="true">
-        {message}
-      </div>
-    </div>
+    Use 'name' from 'context' to link the text to an input  field.::
+
+        <div class="mdc-text-field-helper-line">
+          <div id="{field_name}-helper-text"
+            class="mdc-text-field-helper-text
+              mdc-text-field-helper-text--persistent
+              mdc-text-field-helper-text--validation-msg"
+            aria-hidden="true">
+            {message}
+          </div>
+        </div>
     """
     field_name = context.get("name", "")
 
