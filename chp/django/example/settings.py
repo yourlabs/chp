@@ -17,7 +17,7 @@ INSTALLED_APPS = [
     'chp.django.example.todos',
     'crudlfap',
 ]
-ALLOWED_HOSTS = ['localhost', 'vm-mdc']
+ALLOWED_HOSTS = ['*']
 STATIC_URL = '/static/'
 BASE_DIR = os.path.dirname(__file__)
 STATICFILES_DIRS = [

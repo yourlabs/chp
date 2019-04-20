@@ -101,7 +101,7 @@ class ThreadLocalMiddleware(MiddlewareMixin):
         if hasattr(_thread_locals, 'request'):
             del _thread_locals.request
         return response
- 
+
     def process_exception(self, request, exception):
         if hasattr(_thread_locals, 'request'):
             del _thread_locals.request

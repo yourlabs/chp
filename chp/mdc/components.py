@@ -1,7 +1,7 @@
 
 from .. import components as chp
 
-from ..pyreact import (ce, cp, get_prop)
+from ..pyreact import (cp, get_prop)
 
 MDC_TYPE_MAP = {
     "checkbox": {
@@ -313,13 +313,14 @@ def HelperText(props=[], children=[], context={}):
     )
     children_line = [chp.Div(props, children)]
 
-    props_line = [cp("class", "mdc-text-field-helper-line"),]
+    props_line = [cp("class", "mdc-text-field-helper-line"), ]
     return chp.Div(props_line, children_line)
+
 
 def ValidationText(props=[], children=[], context={}):
     """Add MDC classes to validation text for an input field.
-    
-    Use 'name' from 'context' to link to an input field and display 'errors'."""
+
+    Use 'name' from 'context' to link to input field and display 'errors'."""
     props = [
         cp("class", "mdc-text-field-helper-text--validation-msg"),
     ]

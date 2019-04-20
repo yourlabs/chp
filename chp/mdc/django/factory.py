@@ -1,10 +1,10 @@
+# import django.forms.widgets as Widgets
+
 from django.forms.boundfield import BoundField
-from django.forms.fields import Field
+# from django.forms.fields import Field
 from django.utils.functional import Promise
 from django.utils.html import conditional_escape, format_html
 from django.utils.translation import gettext_lazy as _
-
-import django.forms.widgets as Widgets
 
 from ... import components as chp
 from .. import components as mdc
@@ -85,7 +85,7 @@ class Factory:
             cp("class", "errorlist nonfield"),
             ])
         return mdc.ValidationText(props, [],
-                                  {"errors": errs,})
+                                  {"errors": errs, })
         # error_msg = "<br />".join(errs)
         # return chp.Para(props, error_msg)
 
@@ -98,7 +98,7 @@ class Factory:
             return {}
         return mdc.ValidationText([], [],
                                   {"name": field.name,
-                                   "errors": errs,})
+                                   "errors": errs, })
 
     @staticmethod
     def help_text(field):
@@ -121,7 +121,7 @@ class Factory:
     @staticmethod
     def mdc_checkboxinput(context):
         """Render a BooleanField/CheckBoxInput field/widget."""
-        mdc_type = "checkbox"
+        # mdc_type = "checkbox"
 
         props, children = [], []
         props.append(
@@ -137,7 +137,7 @@ class Factory:
     @staticmethod
     def mdc_textinput(context):
         """Render a CharField/TextInput field/widget."""
-        mdc_type = "text"
+        # mdc_type = "text"
 
         props, children = [], []
         props.append(
@@ -154,7 +154,7 @@ class Factory:
     @staticmethod
     def mdc_dateinput(context):
         """Render a DateField/DateInput field/widget."""
-        mdc_type = "date"
+        # mdc_type = "date"
 
         props, children = [], []
         props.append(
@@ -172,7 +172,7 @@ class Factory:
     def mdc_select(context):
         """Render a CharField/choices or ForeignKey/Select field/widget.
         """
-        mdc_type = "select"
+        # mdc_type = "select"
         props, children = [], []
         props.append(
             cp("name", context['widget']['name']))
@@ -182,7 +182,7 @@ class Factory:
 
         # Implementation of
         # django/forms/templates/django/forms/widgets/select.html
-        for group_name, group_choices, group_index in \
+        for group_name, group_choices, _ in \
                 context["widget"]["optgroups"]:
             props_group, children_group = [], []
             if group_name:

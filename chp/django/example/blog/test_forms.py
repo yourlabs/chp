@@ -165,7 +165,7 @@ def test_render_foreignkey(postform):
 </div>
 """  # noqa
     test_str = re.sub(r"\n\s*", "", test_str)
-    assert html == test_str 
+    assert html == test_str
 
 
 def test_render_form_errors():
@@ -202,4 +202,3 @@ class FormTest(TestCase):
     def test_uses_post_form_template(self):
         response = self.client.get("/blog/post/create")
         self.assertTemplateUsed(response, "blog/post_form.html")
-
