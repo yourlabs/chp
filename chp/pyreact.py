@@ -1,3 +1,7 @@
+import math
+import random
+
+
 def get_prop(props=[], name=[]):
     for p in props:
         try:
@@ -5,6 +9,8 @@ def get_prop(props=[], name=[]):
                 return p
         except KeyError:
             return None
+
+
 # Returns a middleware: a function that takes an ast element and returns
 # another ast element. In this case, we inspect the type of el and call it with
 # a context. A component can now return a function taking a context as argument
@@ -18,11 +24,9 @@ def context_middleware(context):
             return el
     return middleware
 
+
 def default_middleware(el, _props=[], _children=[]):
     return el
-
-import math
-import random
 
 
 def diff_asts(old, new):
@@ -34,7 +38,7 @@ def diff_asts(old, new):
     new_props = new["props"]
 
     # if elements not same name
-        # request to patch innerHTML with chp-id of the old one
+    #     request to patch innerHTML with chp-id of the old one
 
     if old_name != new_name:
         patches.append({
@@ -47,10 +51,10 @@ def diff_asts(old, new):
         # id["value"] = get_prop('chp-id', new["props"])["value"]
 
     # else
-        # go through props
-        # excluding children
-        # if props differ
-            # request patching with new props (but keep old chp-id)
+    #     go through props
+    #     excluding children
+    #     if props differ
+    #         request patching with new props (but keep old chp-id)
 
     else:
         i = 0
@@ -69,32 +73,31 @@ def diff_asts(old, new):
                             props_differ = True
                 i += 1
 
-
         if props_differ:
-            id = get_prop(new_props, "chp-id")
-            id["value"] = get_prop(old_props, "chp-id")["value"]
+            _id = get_prop(new_props, "chp-id")
+            _id["value"] = get_prop(old_props, "chp-id")["value"]
             patches.append({
                 "type": "props",
                 "chp-id": get_prop(old_props, "chp-id")["value"],
-                "props" : new_props
+                "props":  new_props
             })
             new_tree = new
             new_tree["props"] = new_props
         else:
             new_tree = old
 
-
     nc = get_prop(new_props, "children")
     oc = get_prop(old_props, "children")
-    new_children =  nc["value"] if nc else []
-    old_children =  oc["value"] if oc else []
+    new_children = nc["value"] if nc else []
+    old_children = oc["value"] if oc else []
 
     if len(new_children) != len(old_children):
         html = ""
         if type(new_children) is str:
             html = new_children
         else:
-            new_tree_children = get_prop(new_tree["props"], 'children') # ref to new_tree's props
+            # ref to new_tree's props
+            new_tree_children = get_prop(new_tree["props"], 'children')
             new_tree_children["value"] = []
             for c in new_children:
                 html += render_element(c)
@@ -107,8 +110,11 @@ def diff_asts(old, new):
             "html": html,
         })
     else:
-        new_tree_children = get_prop(new_tree["props"], 'children') # ref to new_tree's props
-        new_tree_children["value"] = get_prop(new["props"], 'children')["value"] # ref to new_tree's props
+        # ref to new_tree's props
+        new_tree_children = get_prop(new_tree["props"], 'children')
+        # ref to new_tree's props
+        new_tree_children["value"] = get_prop(new["props"],
+                                              'children')["value"]
         if type(new_children) is str:
             new_tree_children["value"] = new_children
         else:
@@ -140,7 +146,7 @@ def render_html(el, props, child):
     for c in child:
         children += c
 
-    props_str = ""
+    # props_str = ""
     QUOT = "\""  # like &quot;
 
     def render_prop(prop):
@@ -161,18 +167,19 @@ def render_html(el, props, child):
     return f"<{name}{(' ' if props_str else '')}{props_str}>\
 {children}</{name}>"
 
+
 def render_js(el, props, child):
-    name = el["name"]
-    props_str = ""
+    # name = el["name"]
 
     children = ""
     for c in child:
         children += c
 
-    before=get_prop(props, "before")["value"]
-    after=get_prop(props, "after")["value"]
+    before = get_prop(props, "before")["value"]
+    after = get_prop(props, "after")["value"]
 
     return f"{before}{children}{after}"
+
 
 def id_middleware(ast, *args):
     props = ast["props"]
@@ -208,15 +215,19 @@ def render_ast(ast, ast_middleware, render_middleware):
 
     return render_middleware(ast, props, child)
 
+
 def inject_ids(ast, ast_middleware=default_middleware):
     # return render_ast(ast, id_middleware, default_middleware)
     return render_ast(ast, ast_middleware, id_middleware)
 
+
 def render_js_element(ast):
     return render_ast(ast, default_middleware, render_js)
 
+
 def render_element(ast, middleware=default_middleware):
     return render_ast(ast, middleware, render_html)
+
 
 def create_element(name, props=[], children=[]):
     props.append({
@@ -229,17 +240,19 @@ def create_element(name, props=[], children=[]):
         "props": props,
     }
 
+
 def create_prop(name, value):
     return {
         "name": name,
         "value": value,
     }
 
+
 def create_context(value):
     return [{
             "name": "__context",
             "value": value,
-        }]
+            }]
 
 
 ce = create_element
