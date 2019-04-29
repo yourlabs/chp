@@ -1,7 +1,7 @@
 {% load static %}
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="{% static "output.css" %}" />    
+    <link rel="stylesheet" type="text/css" href="{% static "output.css" %}" />
   </head>
   <body>
     <form id="form-django" method="POST">
@@ -72,6 +72,55 @@
       <button form="form-mdc" type="submit">Submit</button>
     </div>
     </form>
+
+    <form id="form-mui" method="POST">
+      {% csrf_token %}
+
+    <div class="mui-container-fluid">
+      <div class="mui-row">
+      <div class="mui-col-md-6">
+
+    <div class="mui-checkbox">
+        <label>
+            <input id="my-checkbox" type="checkbox"/>
+            This is my checkbox
+        </label>
+    </div>
+
+    <div class="mui-textfield mui-textfield--float-label">
+      <input id="text-input" type="text" >
+      <label>Input Label</label>
+    </div>
+
+    <div class="mui-textfield mui-textfield--float-label">
+      <input id="date-input" type="date" >
+      <label>Type = date</label>
+    </div>
+
+    <div class="mui-select">
+      <select id="select-input">
+        <option value="" disabled selected></option>
+        <option value="grains">
+          Bread, Cereal, Rice, and Pasta
+        </option>
+        <option value="vegetables">
+          Vegetables
+        </option>
+        <option value="fruit">
+          Fruit
+        </option>
+      </select>
+      <label for="select-input">Pick a Food Group</label>
+    </div>
+
+      </div>  <!-- class="mui-row" -->
+      </div>  <!-- class="mui-col-md-6" -->
+    </div>  <!-- class="mui-container-fluid" -->
+    <div>
+      <button class="mui-btn mui-btn--primary" form="form-mdc" type="submit">Submit</button>
+    </div>
+    </form>
+
     <script type="text/javascript" src="{% static "output.js" %}"></script>
   </body>
 </html>
