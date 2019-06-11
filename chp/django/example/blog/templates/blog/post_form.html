@@ -73,7 +73,7 @@
     </div>
     </form>
 
-    <form id="form-mui" method="POST">
+    <form class="mui-form" id="form-mui" method="POST">
       {% csrf_token %}
 
     <div class="mui-container-fluid">
@@ -88,11 +88,14 @@
     </div>
 
     <div class="mui-textfield mui-textfield--float-label">
-      <input id="text-input" type="text" >
+      <input id="text-input" type="text">
       <label>Input Label</label>
     </div>
 
-    <div class="mui-textfield mui-textfield--float-label">
+    <!--
+    # MUI doesn't float labels for 'date' or 'select' fields.
+    -->
+    <div class="mui-textfield">
       <input id="date-input" type="date" >
       <label>Type = date</label>
     </div>
@@ -113,12 +116,13 @@
       <label for="select-input">Pick a Food Group</label>
     </div>
 
-      </div>  <!-- class="mui-row" -->
-      </div>  <!-- class="mui-col-md-6" -->
-    </div>  <!-- class="mui-container-fluid" -->
     <div>
       <button class="mui-btn mui-btn--primary" form="form-mdc" type="submit">Submit</button>
     </div>
+
+      </div>  <!-- class="mui-row" -->
+      </div>  <!-- class="mui-col-md-6" -->
+    </div>  <!-- class="mui-container-fluid" -->
     </form>
 
     <script type="text/javascript" src="{% static "output.js" %}"></script>

@@ -1,7 +1,4 @@
-# import django.forms.widgets as Widgets
-
 from django.forms.boundfield import BoundField
-# from django.forms.fields import Field
 from django.utils.functional import Promise
 from django.utils.html import conditional_escape, format_html
 from django.utils.translation import gettext_lazy as _
@@ -9,16 +6,26 @@ from django.utils.translation import gettext_lazy as _
 from ... import components as chp
 from .. import components as mdc
 
-# alias for chp.pyreact.create_prop()
+# Alias for chp.pyreact.create_prop().
 cp = chp.cp
 
 
 class Factory:
+    """ Provide adapter methods to render Django fields and attributes using
+    MDC components rather than a templating engine.
+    """
 
     @staticmethod
     def get_label(field):
-        """Return a field label with suffix."""
-        # code taken from Boundfield.label_tag()
+        """Return a field label with suffix.
+
+        Code adapted from ~django.forms.Boundfield.label_tag().
+
+        :param ~django.forms.BoundField field: The field being rendered.
+        :return: Field label (html_safe).
+        :rtype: str
+        """
+        # Code adapted from ~django.forms.Boundfield.label_tag().
         contents = field.label
         label_suffix = (field.field.label_suffix
                         if field.field.label_suffix is not None
@@ -26,16 +33,27 @@ class Factory:
                               if hasattr(field, "form") else ""))
         if label_suffix and contents and contents[-1] not in _(':?.!'):
             contents = format_html('{}{}', contents, label_suffix)
-        # cast any lazy translation strings
+        # Cast any lazy translation strings.
         if isinstance(contents, Promise):
             contents = conditional_escape(contents)
         return contents
 
     @staticmethod
     def render(field, widget=None, attrs=None, only_initial=False):
-        """Introspect the field and call an MDC render method.
+        """Introspect the field and call an MDC render method to return an AST.
 
-        Prepare the widget attrs, field label and context first.
+        Prepare the widget attrs, field label and context then render the
+        field using MDC components.
+        Code adapted from ~django.forms.BoundField.as_widget().
+
+        :param ~django.forms.BoundField field: The field being rendered.
+        :param widget: A widget to override the default for the field.
+        :type widget: ~django.forms.Widget or None
+        :param attrs: Optional widget attributes.
+        :type attrs: dict or None
+        :param bool only_initial: A flag to render only initial dynamic values.
+        :return: An AST representing the rendered field.
+        :rtype: list
         """
         if not isinstance(field, BoundField):
             raise NotImplementedError
@@ -46,7 +64,7 @@ class Factory:
         if mdc_render is None:
             raise NotImplementedError
 
-        # code from from boundfield.as_widget()
+        # Code adapted from ~django.forms.BoundField.as_widget().
         widget = field.field.widget
         if field.field.localize:
             widget.is_localized = True
@@ -77,6 +95,10 @@ class Factory:
 
     @staticmethod
     def non_field_errors(form):
+        """Return an AST of any errors for the form using MDC components.
+
+        :param `~django.forms.Form` form: The form being rendered.
+        """
         errs = form.errors.get("__all__", form.error_class())
         if errs == []:
             return {}
@@ -86,12 +108,13 @@ class Factory:
             ])
         return mdc.ValidationText(props, [],
                                   {"errors": errs, })
-        # error_msg = "<br />".join(errs)
-        # return chp.Para(props, error_msg)
 
     @staticmethod
     def errors(field):
-        """Render a field validation message."""
+        """Return an AST of any errors for the field using MDC components.
+
+        :param ~django.forms.BoundField field: The field being rendered.
+        """
         errs = field.form.errors.get(field.name, field.form.error_class())
 
         if errs == []:
@@ -102,8 +125,11 @@ class Factory:
 
     @staticmethod
     def help_text(field):
-        """Render a field help_text."""
-        # MDC design: don't show help if there is an error to display.
+        """Return an AST of the help_text for the field 1using MDC components.
+
+        :param ~django.forms.BoundField field: The field being rendered.
+        """
+        # MDC: don't show help text if there is an error to display.
         errs = field.form.errors.get(field.name, field.form.error_class())
         if errs:
             return {}
@@ -111,7 +137,7 @@ class Factory:
         help_text = field.help_text
         if help_text == "":
             return {}
-        # cast any lazy translation strings
+        # Cast any lazy translation strings.
         if isinstance(help_text, Promise):
             help_text = conditional_escape(help_text)
 
@@ -120,8 +146,11 @@ class Factory:
 
     @staticmethod
     def mdc_checkboxinput(context):
-        """Render a BooleanField/CheckBoxInput field/widget."""
-        # mdc_type = "checkbox"
+        """Return an AST for a BooleanField/CheckBoxInput field/widget
+        using MDC components.
+
+        :param dict context: Additional widget attributes.
+        """
 
         props, children = [], []
         props.append(
@@ -136,8 +165,11 @@ class Factory:
 
     @staticmethod
     def mdc_textinput(context):
-        """Render a CharField/TextInput field/widget."""
-        # mdc_type = "text"
+        """Return an AST for a CharField/TextInput field/widget using
+        MDC components.
+
+        :param dict context: Additional widget attributes.
+        """
 
         props, children = [], []
         props.append(
@@ -153,8 +185,11 @@ class Factory:
 
     @staticmethod
     def mdc_dateinput(context):
-        """Render a DateField/DateInput field/widget."""
-        # mdc_type = "date"
+        """Return an AST for a DateField/DateInput field/widget using
+        MDC components.
+
+        :param dict context: Additional widget attributes.
+        """
 
         props, children = [], []
         props.append(
@@ -170,9 +205,11 @@ class Factory:
 
     @staticmethod
     def mdc_select(context):
-        """Render a CharField/choices or ForeignKey/Select field/widget.
+        """Return an AST for a CharField/choices or ForeignKey/Select
+        field/widget using MDC components.
+
+        :param dict context: Additional widget attributes.
         """
-        # mdc_type = "select"
         props, children = [], []
         props.append(
             cp("name", context['widget']['name']))
@@ -181,7 +218,7 @@ class Factory:
             props.append(cp(attr, value))
 
         # Implementation of
-        # django/forms/templates/django/forms/widgets/select.html
+        # django/forms/templates/django/forms/widgets/select.html.
         for group_name, group_choices, _ in \
                 context["widget"]["optgroups"]:
             props_group, children_group = [], []
@@ -191,8 +228,8 @@ class Factory:
             for option in group_choices:
                 props_option = []
                 option_label = option["label"]
-                # override any 'empty_label' as MDC floating label will be
-                # displayed instead.
+                # MDC: Override any instance of 'empty_label' as a
+                # floating label will be displayed instead.
                 if option["value"] == "":
                     option_label = ""
                 props_option.append(
@@ -202,11 +239,11 @@ class Factory:
                 children_group.append(
                     chp.Option(props_option, option_label))
 
-            # build list of optgroups
+            # Build a list of optgroups:
             if group_name:
                 children.append(
                     chp.Optgroup(props_group, children_group))
-            # or simple list of options
+            # Or a list of options:
             else:
                 children.extend(children_group)
 

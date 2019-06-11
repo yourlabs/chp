@@ -12,6 +12,9 @@ def Csrf(props=[], children=[]):
     django-threadlocals is only updated to Django <1.10 on PyPI.
     django-tools has many features that are not needed.
     Adapted django-tools CSRF middleware feature in chp.django.threadlocals.
+
+    :param list props: Key/value properties for the element.
+    :param list children: An AST of child elements to include.
     """
     from .threadlocals import get_current_request
 

@@ -9,6 +9,8 @@ __pycache__
 # Django
 db.sqlite3
 static/
+# Sphinx
+_build/
 # yarn
 node_modules
 yarn.lock

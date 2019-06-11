@@ -9,15 +9,9 @@ Welcome to CHP's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-.. automodule:: chp.components
-   :members:
-
-.. automodule:: chp.mdc.components
-   :members:
-
-.. automodule:: chp.django.components
-   :members:
+   
+   README
+   reference
 
 Indices and tables
 ==================
