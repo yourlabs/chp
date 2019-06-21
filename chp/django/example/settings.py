@@ -1,5 +1,6 @@
 import os
 
+
 # FORM_RENDERER = 'chp.django.mdc.renderer.FormRenderer'
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'notsecret')
@@ -12,12 +13,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
     'chp.django',  # management command
     'chp.django.example.blog',
-    'chp.django.example.todos',
-    'crudlfap',
+    # 'chp.django.example.todos',
+    # 'crudlfap',
 ]
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+    if 'debug_toolbar' in INSTALLED_APPS:
+        from .utils import IP_List
+        INTERNAL_IPS = IP_List('127.0.0.1', '192.168.1.0/24')
+
 STATIC_URL = '/static/'
 BASE_DIR = os.path.dirname(__file__)
 STATICFILES_DIRS = [
@@ -31,6 +39,7 @@ DATABASES = {
 }
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -56,3 +65,4 @@ TEMPLATES = [
     },
 
 ]
+TIME_ZONE = "Europe/London"
