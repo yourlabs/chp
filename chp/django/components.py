@@ -9,9 +9,9 @@ def Csrf(props=[], children=[]):
 
     Need to store the request in threading.local() as we don't have a access
     to template context processor variables.
-    django-threadlocals is only updated to Django <1.10 on PyPI.
-    django-tools has many features that are not needed.
-    Adapted django-tools CSRF middleware feature in chp.django.threadlocals.
+    `django-threadlocals` is only updated to Django <1.10 on PyPI.
+    `django-tools` has many features that are not needed.
+    Adapted `django-tools` CSRF middleware feature in `chp.django.threadlocals`.
 
     :param list props: Key/value properties for the element.
     :param list children: An AST of child elements to include.

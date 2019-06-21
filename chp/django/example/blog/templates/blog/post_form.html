@@ -1,6 +1,8 @@
 {% load static %}
 <html>
   <head>
+    <link rel="shortcut icon" type="image/png" 
+      href="{% static "favicon.ico" %}"/>
     <link rel="stylesheet" type="text/css" href="{% static "output.css" %}" />
   </head>
   <body>
@@ -66,11 +68,15 @@
       <label for="select-input" class="mdc-floating-label">Pick a Food Group</label>
       <div class="mdc-line-ripple"></div>
     </div>
-    </div>
-    </div>
+
+    </div>  <!-- class="mdc_layout_grid__cell" -->
+
     <div class="mdc-button">
       <button form="form-mdc" type="submit">Submit</button>
     </div>
+
+    </div>  <!-- div style="display: flex;" -->
+
     </form>
 
     <form class="mui-form" id="form-mui" method="POST">
@@ -117,7 +123,7 @@
     </div>
 
     <div>
-      <button class="mui-btn mui-btn--primary" form="form-mdc" type="submit">Submit</button>
+      <button class="mui-btn mui-btn--primary" form="form-mui" type="submit">Submit</button>
     </div>
 
       </div>  <!-- class="mui-row" -->

@@ -125,7 +125,7 @@ class Factory:
 
     @staticmethod
     def help_text(field):
-        """Return an AST of the help_text for the field 1using MDC components.
+        """Return an AST of the help_text for the field using MDC components.
 
         :param ~django.forms.BoundField field: The field being rendered.
         """
