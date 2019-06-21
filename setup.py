@@ -29,6 +29,7 @@ setup(
         dev=[
             'django>=2.1',
             'crudlfap',
+            'django-debug-toolbar'
         ],
         test=[
             'pytest',
